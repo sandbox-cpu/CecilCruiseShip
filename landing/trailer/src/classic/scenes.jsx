@@ -1,10 +1,10 @@
 // The scenes of the trailer. Every line of text is taken from the game's own
 // script, public evidence or cast list, and nothing here gives the solution away.
 
-import { AbsoluteFill, Img, OffthreadVideo, getInputProps, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, getInputProps, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
-import { Caption, Eyebrow, Monogram, Reveal, ease, useProgress } from "./parts.jsx";
-import { C, F } from "./theme.js";
+import { Caption, Eyebrow, Monogram, Photo, Reveal, Shot, ease, useProgress } from "../parts.jsx";
+import { C, F } from "../theme.js";
 import { CLOCK, COMING_SOON, LINEUP, SUSPECTS } from "./timing.js";
 
 // The moving shots, animated from the stills with Higgsfield (Kling). A scene
@@ -31,24 +31,6 @@ export function Opening({ calm }) {
       </div>
     </AbsoluteFill>
   );
-}
-
-/** A slow push on a photograph (or nothing, when calm). */
-function Photo({ src, calm, from = 1.03, to = 1.1, origin = "50% 50%", style }) {
-  const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
-  const scale = calm ? from : interpolate(frame, [0, durationInFrames], [from, to], { easing: ease });
-  return (
-    <AbsoluteFill style={{ transform: `scale(${scale})`, transformOrigin: origin }}>
-      <Img src={staticFile(src)} style={{ width: "100%", height: "100%", objectFit: "cover", ...style }} />
-    </AbsoluteFill>
-  );
-}
-
-/** A moving shot if we have one (and motion is welcome), otherwise the photograph. */
-function Shot({ clip, photo, calm, startFrom = 0, style, ...push }) {
-  if (calm || !clip) return <Photo src={photo} calm={calm} {...push} />;
-  return <OffthreadVideo src={staticFile(clip)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", ...style }} />;
 }
 
 // ------------------------------------------------------------------ 2. the ship

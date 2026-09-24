@@ -10,24 +10,35 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const saveData = Boolean(navigator.connection?.saveData);
 const calm = () => reduceMotion.matches;
 
-// The hero's poster is this moment of the trailer, so the loop starts here and the hand-over is seamless.
-const HERO_START_SECONDS = 380 / 30;
+// Two cuts of the trailer: the telegram (the default) and the classic first cut, which
+// ?trailer=classic shows instead. To make the classic cut the default, change DEFAULT_CUT.
+// Each loop starts on the frame its still shows, so the poster hands over to the video without a jump.
+// (The addresses are written out in full so the static build can fingerprint them.)
+const DEFAULT_CUT = "telegram";
+const CUTS = {
+  telegram: {
+    heroSeconds: 214 / 30,
+    still: "/media/still-hero.jpg",
+    length: "About fifty seconds",
+    h264: { loop: "/media/trailer-720.mp4", full: "/media/trailer-1080.mp4", calm: "/media/trailer-calm-720.mp4" },
+    vp9: { loop: "/media/trailer-720.webm", full: "/media/trailer-720.webm", calm: "/media/trailer-calm-720.webm" },
+  },
+  classic: {
+    heroSeconds: 380 / 30,
+    still: "/media/still-classic.jpg",
+    length: "About forty-five seconds",
+    label:
+      "Trailer, playing silently: the SS Halcyon at night on the Atlantic, Cecil bringing a telegram, the Boat Deck in the rain, a clock whose hands run back an hour, the shared screen and private phones, the four passengers, and Cecil’s whispers.",
+    h264: { loop: "/media/trailer-classic-720.mp4", full: "/media/trailer-classic-1080.mp4", calm: "/media/trailer-classic-calm-720.mp4" },
+    vp9: { loop: "/media/trailer-classic-720.webm", full: "/media/trailer-classic-720.webm", calm: "/media/trailer-classic-calm-720.webm" },
+  },
+};
+const askedFor = new URLSearchParams(location.search).get("trailer");
+const CUT = Object.hasOwn(CUTS, askedFor) ? CUTS[askedFor] : CUTS[DEFAULT_CUT];
 
 // H.264 plays almost everywhere; a few open-source browser builds only have VP9.
 const h264 = Boolean(document.createElement("video").canPlayType('video/mp4; codecs="avc1.640028"'));
-const MEDIA = h264
-  ? {
-      loop: "/media/trailer-720.mp4",
-      full: "/media/trailer-1080.mp4",
-      fullSmall: "/media/trailer-720.mp4",
-      calm: "/media/trailer-calm-720.mp4",
-    }
-  : {
-      loop: "/media/trailer-720.webm",
-      full: "/media/trailer-720.webm",
-      fullSmall: "/media/trailer-720.webm",
-      calm: "/media/trailer-calm-720.webm",
-    };
+const MEDIA = { ...CUT[h264 ? "h264" : "vp9"], fullSmall: CUT[h264 ? "h264" : "vp9"].loop };
 
 // ------------------------------------------------------------ motion
 
@@ -83,7 +94,7 @@ function syncFilm() {
   }
   if (!film.getAttribute("src")) {
     film.src = MEDIA.loop;
-    film.addEventListener("loadedmetadata", () => (film.currentTime = HERO_START_SECONDS), { once: true });
+    film.addEventListener("loadedmetadata", () => (film.currentTime = CUT.heroSeconds), { once: true });
   }
   filmToggle.hidden = false;
   if (filmShouldPlay()) {
@@ -98,6 +109,9 @@ function syncFilm() {
 
 function setupFilm() {
   if (!film) return;
+  // The page is written for the default cut; show the other cut's still if that one was asked for.
+  if (film.getAttribute("poster") !== CUT.still) film.setAttribute("poster", CUT.still);
+  if (CUT.label) film.setAttribute("aria-label", CUT.label);
   filmToggle.addEventListener("click", () => {
     filmPausedByUser = !filmPausedByUser;
     syncFilm();
@@ -132,8 +146,8 @@ function setupDialog() {
     const small = matchMedia("(max-width: 900px)").matches;
     const src = calm() ? MEDIA.calm : small ? MEDIA.fullSmall : MEDIA.full;
     note.textContent = calm()
-      ? "The reduced-motion cut: no camera moves or flicker. About forty-five seconds, best with the sound on."
-      : "About forty-five seconds. Best with the sound on.";
+      ? `The reduced-motion cut: no camera moves or flicker. ${CUT.length}, best with the sound on.`
+      : `${CUT.length}. Best with the sound on.`;
 
     if (typeof dialog.showModal !== "function") {
       window.open(src, "_blank", "noopener");

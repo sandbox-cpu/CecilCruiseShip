@@ -1,5 +1,6 @@
 Cormorant Garamond: Copyright 2015 The Cormorant Project Authors. SIL Open Font License 1.1.
 EB Garamond: Copyright 2017 The EB Garamond Project Authors. SIL Open Font License 1.1.
+Courier Prime: Copyright 2015 The Courier Prime Project Authors. SIL Open Font License 1.1. (Only the trailer uses it, for the telegram tape.)
 
-Both are served here unmodified (Latin subsets from Google Fonts).
+All are served here unmodified (Latin subsets from Google Fonts).
 Licence text: https://openfontlicense.org/open-font-license-official-text/

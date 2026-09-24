@@ -1,13 +1,13 @@
-// The trailer: about 45 seconds, black to black, so it loops without a seam.
+// The classic trailer (the first cut): about 45 seconds, black to black, so it loops without a seam.
 // `calm` is the reduced-motion cut: no camera moves, drift, flicker or shaking,
-// just slow cross-fades. Both carry the same soundtrack (make-sound.mjs); the page
+// just slow cross-fades. Both carry the same soundtrack (sound/classic.mjs); the page
 // mutes the hero loop and plays sound only when someone opens the trailer.
 
 import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { ClockOverlay } from "./ClockOverlay.jsx";
-import "./fonts.js";
-import { Grain, Scene, Vignette } from "./parts.jsx";
+import "../fonts.js";
+import { Grain, Scene, Vignette } from "../parts.jsx";
 import { CecilWalk, Opening, Screens, Sea, Ship, Suspects, TheHour, Title, Whispers } from "./scenes.jsx";
 import { END, SCENES as AT } from "./timing.js";
 
@@ -39,7 +39,7 @@ export function Trailer({ calm = false }) {
         ))}
         <ClockOverlay calm={calm} />
       </AbsoluteFill>
-      <Audio src={staticFile("media/trailer-sound.wav")} />
+      <Audio src={staticFile("media/trailer-classic-sound.wav")} />
       <Vignette />
       <Grain calm={calm} />
     </AbsoluteFill>

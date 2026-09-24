@@ -2,15 +2,17 @@
   "name": "cecil-trailer",
   "version": "0.1.0",
   "private": true,
-  "description": "The Remotion trailer for the Cecil landing page. Renders into ../public/media.",
+  "description": "The Remotion trailers for the Cecil landing page. Render into ../public/media.",
   "type": "module",
   "scripts": {
     "studio": "remotion studio src/index.jsx",
-    "sound": "node make-sound.mjs",
+    "sound": "node sound/telegram.mjs",
+    "sound:classic": "node sound/classic.mjs",
     "render": "node render.mjs",
     "render:full": "node render.mjs full",
     "render:calm": "node render.mjs calm",
     "render:stills": "node render.mjs stills",
+    "render:classic": "node render.mjs classic",
     "grain": "node make-grain.mjs"
   },
   "dependencies": {

@@ -4,7 +4,7 @@ The landing page and early-access waitlist for **Dead Reckoning**, Cecil's secon
 
 - **The page** (`public/`): plain HTML, CSS and JavaScript with no build step. It opens on the Halcyon at night. Below that come the trailer (a silent loop, with its soundtrack when opened), Cecil as Chief Purser, the night of the man overboard, the "two screens" explanation of how the game plays, Cecil's mischief, the four passengers' faces, a FAQ and the waitlist form. It works on phones and desktops, respects reduced-motion settings, and the form still works with JavaScript switched off.
 - **The waitlist** (`server/`): a small Node server. Each sign-up is saved as a row in a SQLite file, and a password-protected admin page lets you view, export and remove sign-ups.
-- **The trailer** (`trailer/`): a [Remotion](https://www.remotion.dev) project that renders the trailer, a reduced-motion cut and the still images into `public/media/`.
+- **The trailer** (`trailer/`): a [Remotion](https://www.remotion.dev) project that renders two cuts of the trailer (the telegram, and the classic first cut), each with a reduced-motion version, plus the still images, into `public/media/`.
 
 ## Run it
 
@@ -102,48 +102,58 @@ The host usually provides `PORT`; the server picks it up automatically.
 
 ## The trailer
 
-The trailer runs about 45 seconds and fades from black to black, so it loops without a seam. Its nine scenes:
+There are two cuts. The page plays **the telegram** by default; **the classic cut** (the first trailer) is kept as an alternative. Add `?trailer=classic` to the page's address to watch it there (the static preview too). To make it the default, set `DEFAULT_CUT = "classic"` in `public/js/main.js`.
 
-1. Cecil's monogram, and *SS Halcyon · Mid-Atlantic · October 1961*.
-2. The camera pushes in on the Halcyon steaming through the swell at night: *Three nights out. Four days from the nearest port.*
-3. Cecil walks the corridor with a telegram on a salver, on the beat of his own footsteps: *Chief Purser of the SS Halcyon these twenty-two years.*
-4. The Boat Deck in the rain, and a ship's clock that runs from 1.05 to two, strikes, spins back an hour and runs on again: *At two o'clock the clocks went back an hour.* On the second twenty past one, the ship's whistle: *At twenty past one, Mortimer Crane went over the side.*
-5. A lifebuoy light on black water: *The Halcyon searched until dawn. The sea did not give him back.*
-6. The shared screen and three private phones: *One screen tells the story. Every phone tells a different one.*
-7. The passengers, one face on each drum hit: Miss Kingsley, Mr Quill, Miss Ashdown and Mr Pryce, then all four together: *Everyone has something to hide.*
-8. Three of Cecil's whispers arriving. From scene 6 on, a small, faint clock fades in and out in the corner as the night runs on: 1.30, 2.30, 3.30, 4.30, 5.30.
-9. The title card. Cecil speaks for the first time: *"Good evening. I am Cecil, Chief Purser of the Halcyon, and I shall be your host this evening."* Then, as *Coming soon* appears: *"Do find your seat, and keep your hands inside the rail."*
+### The telegram (the default)
 
-Every line in it comes from the game's own script, its public evidence or its cast list. It gives nothing away that the game's prologue and first act don't show every player.
+About 51 seconds, black to black, so it loops without a seam. It's built as a sequel's trailer: it doesn't reuse the first cut's structure or pictures. In the small hours Cecil walks into the ship's wireless room and dictates a telegram, and the trailer *is* that telegram. Each line he dictates comes up on telegram tape over the pictures. When he says "Send it", the operator keys the title in Morse code. The soundtrack's rhythm *is* the Morse: one cut per letter, and the title assembling on the tape as each letter lands.
 
-**The soundtrack** tells the story before anyone speaks. The sea and the ship's engines run under everything. Rain sweeps the deck as we see the ship; measured footsteps come down the corridor and stop at the Purser's counter, where a brass bell rings once. Then a clock ticks faster and faster to two, strikes twice, and the hour runs backwards with a sucked-in rush; the ticking comes back, slower, until the ship's whistle sounds and something goes into the sea. Under all this runs the quiet, uneasy score from Cecil's first case: a low drone, a slow minor-key string pad and a music box that never resolves. When the screens appear the music turns dramatic: driving low strings at 120 bpm, a timpani hit under each face, a high line creeping up by half-steps, phones buzzing as Cecil whispers and the corner clock ticking on the beat. A rise and a beat of silence lead into the hit and two strokes of the ship's bell on the title. Only then does anyone speak: Cecil's two lines, with the music ducking about 13 dB beneath him. Under the last line, the music box plays its opening notes again and finally resolves.
+1. Black, and a strip of tape typing itself out: *CECIL HAS TAKEN UP A NEW POSITION STOP*.
+2. Cecil in the doorway of the wireless room, the form's header typing in beside him (*FROM CECIL, CHIEF PURSER · TO WHOM IT MAY CONCERN*): *"Sparks. Take a telegram, would you?"* Sparks answers "R" on the key.
+3. The ship's wake at night: *"Regret to report. Mr Mortimer Crane went over the side at twenty past one."*
+4. A pencilled chart of the North Atlantic. The track from Madeira reaches tonight's position, and brass dividers walk the four days still to run to Barbados: *"Nearest port, four days."* The chart closes in on the sounding under the ship, circled in red: *"Nearest land, three miles…"*
+5. *"…Straight down."* Under the ship, looking up at her hull passing far overhead. *Dead reckoning: working out where you are from where you've been.*
+6. A typed list headed *PERSONS ABOARD*: the four passengers' photographs, each stamped *ABOARD*: *"Murderer believed to be aboard."*
+7. A storm at the porthole: *"Passengers will kindly not disembark."*
+8. Close on Cecil: *"Send it."* Then the transmission: DEAD RECKONING in Morse, one picture per letter (the key, the porthole, the grand staircase, the ballroom after the gala, the wake, the hull, the ship, Cecil, and each passenger for a moment). The four faces get about the same time on screen.
+9. The title: *A new case for Cecil · Dead Reckoning*. Cecil: *"Dinner will be served as usual."* It comes up on the tape as *DINNER AS USUAL STOP*, the stewards' dinner chimes play, and *Coming soon*.
 
-The soundtrack is synthesised in code (`trailer/make-sound.mjs`, with a small toolkit in `trailer/sound/dsp.mjs`), not recorded, so it re-renders along with the picture. Cecil's lines are the only recordings: `trailer/voice/cecil-host.wav` and `cecil-seat.wav`. To swap a line, replace the file and update its `at` and `speech` times in `timing.js`. Every cue, from each footstep to the whistle, is a frame number in `trailer/src/timing.js`, which the scenes use too, so sound and picture can't drift apart.
+Every word on screen is Cecil's dictation, the game's public premise or its cast list. It gives nothing away that the game's prologue doesn't show every player.
+
+**The soundtrack.** Radio static and the hum of the wireless valves, the engines far below, the clatter of the teleprinter for every line of tape. A low drone on D gathers under Cecil's dictation, with a slow pulse under the chart. Everything drops away under the ship: a rush of water, a deep boom after "down", the screws turning overhead, the hull groaning, bubbles. Rubber stamps, a quicker heartbeat and thunder at the porthole; then near-silence for "Send it". The transmission is the score: Morse at 150 bpm (a dit is a sixteenth), a kick on every beat, the bass keyed with the Morse, a tom as each letter lands, and strings climbing D minor, B flat, G minor, A into the title hit. After Cecil's last line, the dinner chimes, in D major for once. The music ducks about 12 dB whenever Cecil speaks.
+
+### The classic cut
+
+About 45 seconds, in nine scenes: Cecil's monogram; the Halcyon at night (*Three nights out. Four days from the nearest port.*); Cecil walking the corridor with a telegram on a salver; the Boat Deck and a ship's clock that runs to two, spins back an hour and runs on to twenty past one (*At two o'clock the clocks went back an hour. At twenty past one, Mortimer Crane went over the side.*); a lifebuoy light on black water; the shared screen and private phones; the four passengers, one face per drum hit; Cecil's whispers; and the title, where Cecil speaks for the first time. Its soundtrack is footsteps, the Purser's desk bell, the clock, the ship's whistle, driving strings at 120 bpm and a music box.
+
+### Files
 
 | File | Used for |
 |---|---|
-| `public/media/trailer-720.mp4` (`.webm`) | The hero loop, played muted. It starts on the same frame as the still, so there's no jump. Also "Watch the trailer" on phones. |
+| `public/media/trailer-720.mp4` (`.webm`) | The telegram as the page's loop, played muted. It starts on the same frame as its still, so there's no jump. Also "Watch the trailer" on phones. |
 | `public/media/trailer-1080.mp4` | "Watch the trailer": the full version, with sound and controls. |
-| `public/media/trailer-calm-720.mp4` (`.webm`) | The reduced-motion cut: no camera moves, flicker or shaking, just slow cross-fades. Same soundtrack. |
+| `public/media/trailer-calm-720.mp4` (`.webm`) | The reduced-motion cut: no camera moves, flashes or shaking, and the montage cross-fades instead of cutting. Same soundtrack. |
+| `public/media/still-hero.jpg` | The loop's still (Cecil in the wireless room), and all a reduced-motion visitor sees until they choose to play. |
 | `public/media/trailer-sound.wav` | The soundtrack on its own, as the videos are built from it. The page never loads it. |
-| `public/media/still-deck.jpg` | The hero's still image (the clock on the second twenty past one), and all a reduced-motion visitor sees until they choose to play. |
-| `public/media/poster.jpg` | The poster for the full trailer. |
+| `public/media/trailer-classic-*.mp4` (`.webm`), `still-classic.jpg`, `trailer-classic-sound.wav` | The same set for the classic cut. |
+| `public/media/poster.jpg` | The poster for the full trailer (either cut). |
 | `public/media/social-card.jpg` | The preview image when the link is shared (1200×630). |
-| `public/media/trailer-src/` | The moving shots the trailer is cut from. Only the trailer uses them; the static build leaves them out. A scene whose clip is missing falls back to a slow push on its photograph. |
+| `public/media/trailer-src/` | The moving shots the trailers are cut from. Only the trailers use them; the static build leaves them out. A shot whose clip is missing falls back to its photograph. |
 
-**How the page uses them:** the hero loop is always muted; sound plays only when someone opens the trailer. The loop plays only while it's on screen and can be paused. It doesn't autoplay for anyone who has asked their device to reduce motion, or who has Data Saver on; they get the still and a button to watch.
+**How the page uses them:** the loop is always muted; sound plays only when someone opens the trailer. The loop plays only while it's on screen and can be paused. It doesn't autoplay for anyone who has asked their device to reduce motion, or who has Data Saver on; they get the still and a button to watch.
 
-**To change and re-render it:**
+**To change and re-render:**
 
 ```bash
 cd landing/trailer
 npm install
-npm run studio        # live preview in the browser
-npm run sound         # just the soundtrack (a few seconds), with a level report per section
-npm run render        # soundtrack, videos and stills into ../public/media (a few minutes)
+npm run studio          # live preview in the browser (both cuts)
+npm run sound           # just the telegram's soundtrack (a few seconds), with a level report per section
+npm run render          # both cuts: soundtracks, videos and stills into ../public/media (a while)
+npm run render:full     # just the telegram (also render:calm, render:stills, render:classic)
 ```
 
-The scenes are in `trailer/src/scenes.jsx`, the corner clock in `trailer/src/ClockOverlay.jsx`, and the shared timings in `trailer/src/timing.js`. The photographs are in `public/media/photos/`, which the page and the trailer share (see [The pictures](#the-pictures)). The film grain is a tile made by `npm run grain` (`public/media/grain.png`); only the trailer uses it. Remotion downloads its own headless Chrome the first time; set `REMOTION_BROWSER` to use one you already have.
+Each cut has its own folder: `trailer/src/telegram/` (the scenes, the Morse code in `morse.js` and the shared timings in `timing.js`) and `trailer/src/classic/`. The soundtracks are synthesised in code (`trailer/sound/telegram.mjs` and `trailer/sound/classic.mjs`, with a small toolkit in `trailer/sound/dsp.mjs`), not recorded, so they re-render with the picture. Every cue is a frame number in the cut's `timing.js`, which its scenes use too, so sound and picture can't drift apart. Cecil's lines are the only recordings, in `trailer/voice/telegram/` and `trailer/voice/classic/`. To swap one, replace the file and update its `at` and `speech` times in `timing.js`. The telegram tape is set in Courier Prime (`public/fonts/courier-prime-bold.woff2`, which only the trailer loads). The film grain is a tile made by `npm run grain` (`public/media/grain.png`). Remotion downloads its own headless Chrome the first time; set `REMOTION_BROWSER` to use one you already have.
 
 ## The pictures
 
@@ -158,8 +168,10 @@ The ship, its rooms, Cecil and the four passengers were made with [Higgsfield](h
 | `cabin.jpg` | Cabin A128 and the locked attaché case | Soul Cinema |
 | `ballroom.jpg`, `smoking.jpg` | The ballroom and the Smoking Room (section backgrounds) | Soul Cinema |
 | `kingsley.jpg`, `quill.jpg`, `ashdown.jpg`, `pryce.jpg` | The four passengers | Soul Cinema |
+| `cecil-wireless.jpg` | Cecil in the doorway of the wireless room (the telegram trailer) | GPT Image 2.5, from the Chief Purser still |
+| `wireless-key.jpg`, `hull-below.jpg`, `wake.jpg`, `porthole.jpg`, `staircase.jpg`, `ballroom-after.jpg` | The Morse key, the hull seen from far below, the wake, a porthole in a storm, the grand staircase, the ballroom after the gala (the telegram trailer) | Soul Cinema |
 
-The trailer's moving shots in `public/media/trailer-src/` were animated from those stills with Kling 3.0. They're silent; the trailer's soundtrack supplies the sound. Cecil's two spoken lines were generated with Seed Audio, using his lines from the Ravensmere trailer as the voice reference, so he sounds like the same Cecil. Check that your Higgsfield plan allows commercial use before you use any of these in paid advertising.
+The trailers' moving shots in `public/media/trailer-src/` were animated from those stills with Kling 3.0: the ship, Cecil in the corridor and the lifebuoy for the classic cut; the Morse key and the hull overhead for the telegram. They're silent; the soundtracks supply the sound. Cecil's lines were generated with Seed Audio, using his lines from the Ravensmere trailer as the voice reference, so he sounds like the same Cecil. The telegram's eleven lines were recorded as one take and cut apart. Check that your Higgsfield plan allows commercial use before you use any of these in paid advertising.
 
 To swap a picture, keep the file name and roughly the same framing, then re-render the trailer if it appears there. The static build fingerprints every file in `public/media/`, so a new version is picked up straight away.
 
@@ -191,13 +203,13 @@ public/
   js/main.js      trailer loop, dialog, Ask Cecil, the form
   js/email.js     email checks, shared by the browser and the server
   js/admin.js     the admin page's Remove button
-  media/          the trailer and its stills
+  media/          the trailers and their stills
   media/photos/   the ship, its rooms, Cecil and the passengers
-  media/trailer-src/  the trailer's moving shots (not deployed)
-  fonts/          Cormorant Garamond and EB Garamond, self-hosted
+  media/trailer-src/  the trailers' moving shots (not deployed)
+  fonts/          Cormorant Garamond and EB Garamond, self-hosted (and Courier Prime, for the trailer)
 scripts/export.js npm run export
 scripts/build-static.js  npm run build:static: the static preview in dist/
 netlify.toml      Netlify build settings for the static preview
-trailer/          the Remotion project
+trailer/          the Remotion project: both cuts of the trailer
 test/             unit, API and browser tests
 ```

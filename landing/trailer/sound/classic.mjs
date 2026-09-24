@@ -1,5 +1,5 @@
-// The trailer's soundtrack, made from scratch: npm run sound
-// Writes ../public/media/trailer-sound.wav, which the Trailer composition plays.
+// The classic trailer's soundtrack, made from scratch: npm run sound:classic
+// Writes ../public/media/trailer-classic-sound.wav, which the TrailerClassic composition plays.
 //
 // Act one is told in sound effects over a quiet, uneasy score: the sea and the
 // rain, Cecil's footsteps down the corridor and the bell on the Purser's counter,
@@ -10,16 +10,16 @@
 // timpani, a rising line and the clock ticking on the beat, into a hit as the
 // title lands with two strokes of the ship's bell.
 //
-// Then, over the title, Cecil finally speaks (voice/), with the music ducking
+// Then, over the title, Cecil finally speaks (voice/classic/), with the music ducking
 // under him, and the music box resolves at last.
 //
-// Every cue comes from src/timing.js, which the picture uses too.
+// Every cue comes from src/classic/timing.js, which the picture uses too.
 
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import { Mix, SR, add, areEnv, brownNoise, filter, modal, mul, percEnv, readWav, rng, saw, sine, tailFade, whiteNoise } from "./sound/dsp.mjs";
-import * as T from "./src/timing.js";
+import { Mix, SR, add, areEnv, brownNoise, filter, modal, mul, percEnv, readWav, rng, saw, sine, tailFade, whiteNoise } from "./dsp.mjs";
+import * as T from "../src/classic/timing.js";
 
 const s = T.seconds;
 const LENGTH = T.END / T.FPS;
@@ -464,13 +464,13 @@ mix.place(riser(s(T.HIT) - 0.15 - s(T.RISE)), s(T.RISE), { gain: 0.16, send: 0.2
 
 // Cecil: "Good evening. I am Cecil, Chief Purser of the Halcyon, and I shall be your host this evening."
 // Then: "Do find your seat, and keep your hands inside the rail."
-// (NO_VOICE=1 npm run sound leaves him out, for checking how the music sits underneath.)
+// (NO_VOICE=1 npm run sound:classic leaves him out, for checking how the music sits underneath.)
 for (const line of process.env.NO_VOICE ? [] : Object.values(T.VOICE)) {
-  if (!existsSync(here(`./${line.file}`))) {
+  if (!existsSync(here(`../${line.file}`))) {
     console.warn(`(No ${line.file} yet: leaving that line out.)`);
     continue;
   }
-  const voice = filter(readWav(here(`./${line.file}`)), "highpass", 70, 0.7);
+  const voice = filter(readWav(here(`../${line.file}`)), "highpass", 70, 0.7);
   mix.place(voice, s(line.at), { gain: 1.6, send: 0.1 });
 }
 
@@ -484,7 +484,7 @@ for (const line of process.env.NO_VOICE ? [] : Object.values(T.VOICE)) {
 // ============================================================ out
 
 mix.finish({ fadeIn: 0.4, fadeOutFrom: LENGTH - 0.8 });
-const out = fileURLToPath(new URL("../public/media/trailer-sound.wav", import.meta.url));
+const out = fileURLToPath(new URL("../../public/media/trailer-classic-sound.wav", import.meta.url));
 mix.writeWav(out);
 console.log(`Wrote ${out}`);
 console.log(

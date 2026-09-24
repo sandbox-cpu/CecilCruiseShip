@@ -62,7 +62,7 @@ describe("the landing page in a browser", { skip: !chromium && "playwright is no
     if (dir) rmSync(dir, { recursive: true, force: true });
   });
 
-  async function open(options = {}) {
+  async function open({ path = "/", ...options } = {}) {
     const context = await browser.newContext(options);
     const page = await context.newPage();
     const problems = [];
@@ -72,7 +72,7 @@ describe("the landing page in a browser", { skip: !chromium && "playwright is no
       // Media requests are aborted by design when the loop pauses or the dialog closes.
       if (!/\.(mp4|webm)$/.test(new URL(req.url()).pathname)) problems.push(`requestfailed: ${req.url()}`);
     });
-    await page.goto(base, { waitUntil: "load" });
+    await page.goto(base + path, { waitUntil: "load" });
     // Playwright scrolls elements into view before clicking; the page's smooth scrolling can keep
     // them moving long enough for a click to time out, so the harness turns it off.
     await page.evaluate(() => document.documentElement.style.setProperty("scroll-behavior", "auto", "important"));
@@ -223,7 +223,7 @@ describe("the landing page in a browser", { skip: !chromium && "playwright is no
     const { context, page, problems } = await open({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
     await page.waitForTimeout(800);
     assert.equal(await page.getAttribute(".film", "src"), null);
-    assert.equal(await page.getAttribute(".film", "poster"), "/media/still-deck.jpg");
+    assert.equal(await page.getAttribute(".film", "poster"), "/media/still-hero.jpg");
     assert.match(await page.textContent("[data-film-state]"), /Motion is reduced/);
     assert.ok(await page.isHidden("[data-film-toggle]"));
     assert.equal(await page.evaluate(() => document.documentElement.classList.contains("motion")), false);
@@ -240,6 +240,25 @@ describe("the landing page in a browser", { skip: !chromium && "playwright is no
     await page.keyboard.press("Escape");
     await page.click('.chip[data-q="case"]');
     assert.equal(await page.textContent("[data-answer]"), "“He was a man who kept things.”");
+
+    assert.deepEqual(problems, []);
+    await context.close();
+  });
+
+  test("the classic cut: ?trailer=classic plays the first trailer instead", async () => {
+    const { context, page, problems } = await open({ path: "/?trailer=classic", viewport: { width: 1440, height: 900 } });
+    assert.equal(await page.getAttribute(".film", "poster"), "/media/still-classic.jpg");
+    await page.locator("#trailer").scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => /trailer-classic-720\.(mp4|webm)$/.test(document.querySelector(".film").getAttribute("src") ?? ""));
+    await page.click(".film-open");
+    await page.waitForSelector("#trailer-dialog[open]");
+    assert.match(await page.getAttribute(".dialog-video", "src"), /trailer-classic-(1080\.mp4|720\.webm)$/);
+    assert.match(await page.textContent("[data-dialog-note]"), /forty-five seconds/);
+    await page.keyboard.press("Escape");
+
+    // Anything else gets the default cut.
+    await page.goto(`${base}/?trailer=constructor`, { waitUntil: "load" });
+    assert.equal(await page.getAttribute(".film", "poster"), "/media/still-hero.jpg");
 
     assert.deepEqual(problems, []);
     await context.close();

@@ -26,3 +26,12 @@ Repo: `sandbox-cpu/CecilCruiseShip`, branch `claude/cecil-cruise-mystery-6kjt7d`
 - [x] Kling moving shots for the trailer: the ship, Cecil in the corridor, the sea (`landing/public/media/trailer-src/`)
 - [x] Render the trailer, calm cut, poster and social card; landing tests; landing README
 - [x] Final push
+
+## Second trailer (user's follow-up)
+
+The user asked for a fresh trailer, because the first was a reskin of the Ravensmere one and this is a sequel, with the first kept as a second option.
+
+- [x] The first trailer kept as "the classic cut": `landing/trailer/src/classic/`, `sound/classic.mjs`, `voice/classic/`, renders renamed `trailer-classic-*` and `still-classic.jpg`; the page plays it with `?trailer=classic` (`DEFAULT_CUT` in `landing/public/js/main.js`)
+- [x] New material from Higgsfield: seven stills, two Kling clips (the Morse key, the hull from below), one take of Cecil's new lines cut into eleven files
+- [x] "The telegram": `landing/trailer/src/telegram/` (Morse timing in `morse.js`), soundtrack `sound/telegram.mjs`
+- [x] Render, landing tests (including a browser test for the classic cut), README, push

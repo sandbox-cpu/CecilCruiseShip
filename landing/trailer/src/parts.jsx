@@ -1,6 +1,6 @@
 // Small building blocks shared by every scene.
 
-import { AbsoluteFill, Easing, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, Img, OffthreadVideo, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { C, F } from "./theme.js";
 
@@ -29,6 +29,24 @@ export function Reveal({ at = 0, dur = 18, calm, rise = 18, children, style }) {
   return (
     <div style={{ opacity: p, transform: calm ? "none" : `translateY(${(1 - p) * rise}px)`, ...style }}>{children}</div>
   );
+}
+
+/** A slow push on a photograph (or nothing, when calm). */
+export function Photo({ src, calm, from = 1.03, to = 1.1, origin = "50% 50%", style }) {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const scale = calm ? from : interpolate(frame, [0, durationInFrames], [from, to], { easing: ease });
+  return (
+    <AbsoluteFill style={{ transform: `scale(${scale})`, transformOrigin: origin }}>
+      <Img src={staticFile(src)} style={{ width: "100%", height: "100%", objectFit: "cover", ...style }} />
+    </AbsoluteFill>
+  );
+}
+
+/** A moving shot if we have one (and motion is welcome), otherwise the photograph. */
+export function Shot({ clip, photo, calm, startFrom = 0, style, ...push }) {
+  if (calm || !clip) return <Photo src={photo} calm={calm} {...push} />;
+  return <OffthreadVideo src={staticFile(clip)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", ...style }} />;
 }
 
 /** Film grain: a pre-made noise tile, jumped to a new offset every frame. Static when calm. */

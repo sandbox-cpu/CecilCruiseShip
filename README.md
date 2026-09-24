@@ -125,7 +125,7 @@ CecilCruiseShip/
 │   ├── pack-halcyon.html     # Dead Reckoning's printable evidence pack
 │   └── shared.js, theme.css  # helpers, and each case's colours
 ├── test/                     # engine, AI, server and browser tests for both cases (spoilers)
-└── landing/                  # the Dead Reckoning coming-soon page, waitlist and trailer (see landing/README.md)
+└── landing/                  # the Dead Reckoning coming-soon page, waitlist and trailers (see landing/README.md)
 ```
 
 The engine is deterministic: time comes in through `tick()` and randomness from a seeded generator. That's why the tests can play whole evenings in milliseconds.

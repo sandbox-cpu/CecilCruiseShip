@@ -22,6 +22,7 @@ export const F = {
   display: '"Cormorant Garamond", "EB Garamond", Georgia, serif',
   serif: '"EB Garamond", Georgia, serif',
   sans: '"DejaVu Sans", "Liberation Sans", system-ui, sans-serif',
+  tape: '"Courier Prime", "Courier New", monospace', // the telegram tape
 };
 
 export const FPS = 30;

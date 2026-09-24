@@ -6,6 +6,7 @@ const FACES = [
   ["Cormorant Garamond", "fonts/cormorant-garamond-italic.woff2", "italic"],
   ["EB Garamond", "fonts/eb-garamond.woff2", "normal"],
   ["EB Garamond", "fonts/eb-garamond-italic.woff2", "italic"],
+  ["Courier Prime", "fonts/courier-prime-bold.woff2", "normal"],
 ];
 
 const handle = delayRender("Loading fonts");

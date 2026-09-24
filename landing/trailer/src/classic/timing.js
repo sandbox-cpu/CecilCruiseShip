@@ -1,5 +1,5 @@
 // Every moment the picture and the soundtrack share, in frames at 30 fps.
-// Plain JavaScript, so the Remotion scenes and make-sound.mjs both import it.
+// Plain JavaScript, so the Remotion scenes and sound/classic.mjs both import it.
 //
 // Act one is told in sound over a quiet score: the sea, Cecil's footsteps, the
 // bell on the Purser's desk, then a clock that runs to two and back to one, and
@@ -53,8 +53,8 @@ export const CLOCK_SHOWINGS = [
 // The title: Cecil speaks, at last. Each line's `at` is when its file starts playing;
 // `speech` is where the words start and end inside the file, in seconds.
 export const VOICE = {
-  host: { file: "voice/cecil-host.wav", at: HIT + 30, speech: [0.05, 6.6] }, // "Good evening. I am Cecil, Chief Purser of the Halcyon, and I shall be your host this evening."
-  seat: { file: "voice/cecil-seat.wav", at: HIT + 250, speech: [0.05, 3.59] }, // "Do find your seat, and keep your hands inside the rail."
+  host: { file: "voice/classic/cecil-host.wav", at: HIT + 30, speech: [0.05, 6.6] }, // "Good evening. I am Cecil, Chief Purser of the Halcyon, and I shall be your host this evening."
+  seat: { file: "voice/classic/cecil-seat.wav", at: HIT + 250, speech: [0.05, 3.59] }, // "Do find your seat, and keep your hands inside the rail."
 };
 export const COMING_SOON = VOICE.seat.at; // the "Coming soon" card appears with the invitation
 export const END = VOICE.seat.at + Math.round((VOICE.seat.speech[1] + 1.6) * FPS); // a breath after the last word

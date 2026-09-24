@@ -1,9 +1,10 @@
-// Render the trailer, its reduced-motion cut and the stills into ../public/media.
+// Render the trailers and the stills into ../public/media.
 //
-//   npm run render            everything
-//   npm run render:full       just the trailer (1080p and the 720p loop)
-//   npm run render:calm       just the reduced-motion cut
-//   npm run render:stills     just the poster and social card
+//   npm run render            everything, both cuts
+//   npm run render:full       the telegram trailer (1080p, and the 720p loop in MP4 and WebM)
+//   npm run render:calm       its reduced-motion cut
+//   npm run render:stills     the hero still, the poster and the social card
+//   npm run render:classic    the classic first cut, its calm cut and its hero still
 //
 // Remotion downloads its own headless Chrome the first time. To use one you
 // already have, set REMOTION_BROWSER=/path/to/chrome-headless-shell.
@@ -15,6 +16,8 @@ import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
 
+import { HERO } from "./src/telegram/timing.js";
+
 const only = process.argv[2] ?? "all";
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 const out = (name) => here(`../public/media/${name}`);
@@ -22,14 +25,19 @@ const out = (name) => here(`../public/media/${name}`);
 const guess = "/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell";
 const browserExecutable = process.env.REMOTION_BROWSER || (existsSync(guess) ? guess : null);
 
-// The soundtrack is generated, not recorded: make it fresh so it always matches src/timing.js.
-if (only !== "stills") execFileSync(process.execPath, [here("./make-sound.mjs")], { stdio: "inherit" });
+// The soundtracks are generated, not recorded: make them fresh so they always match their timing.js.
+const sound = (cut) => execFileSync(process.execPath, [here(`./sound/${cut}.mjs`)], { stdio: "inherit" });
+if (["all", "full", "calm", "webm"].includes(only)) sound("telegram");
+if (["all", "classic"].includes(only)) sound("classic");
 
 console.log("Bundling…");
 const serveUrl = await bundle({ entryPoint: here("./src/index.jsx"), publicDir: here("../public") });
 // Which moving shots exist; a scene without one uses its photograph.
 const clips = Object.fromEntries(
-  Object.entries({ ship: "ship-push.mp4", cecil: "cecil-walk.mp4", sea: "sea-buoy.mp4" }).map(([id, file]) => [id, existsSync(out(`trailer-src/${file}`))]),
+  Object.entries({ ship: "ship-push.mp4", cecil: "cecil-walk.mp4", sea: "sea-buoy.mp4", key: "wireless-key.mp4", deep: "hull-below.mp4" }).map(([id, file]) => [
+    id,
+    existsSync(out(`trailer-src/${file}`)),
+  ]),
 );
 // Chrome's default software compositing is several times faster here than forcing a GL backend.
 const common = { serveUrl, browserExecutable, concurrency: 4, inputProps: { clips } };
@@ -65,11 +73,11 @@ async function still(id, file, frame = 0, scale = 1) {
   await renderStill({ ...common, composition, frame, scale, output: out(file), imageFormat: "jpeg", jpegQuality: 86 });
 }
 
-// The hero's still: the clock over No. 7 lifeboat, on the second twenty past one. The
-// page starts the loop on this same frame, so the poster hands over to the video without a jump.
-export const HERO_FRAME = 380;
+// The hero's stills. Each page loop starts on the same frame as its still, so the
+// poster hands over to the video without a jump (public/js/main.js has the same numbers).
+export const HERO_FRAME = { telegram: HERO, classic: 380 };
 
-// npm run render -- preview 40 200 400: single frames of the trailer, as JPEGs in out/.
+// npm run render -- preview 40 200 400: single frames of the trailer, as JPEGs in out/ (COMP=TrailerClassic for the other cut).
 if (only === "preview") {
   const composition = await selectComposition({ ...common, id: process.env.COMP || "Trailer" });
   for (const frame of process.argv.slice(3).map(Number)) {
@@ -80,22 +88,26 @@ if (only === "preview") {
   process.exit(0);
 }
 
-if (only === "all" || only === "full") {
-  await video("Trailer", "trailer-1080.mp4");
-  await video("Trailer", "trailer-720.mp4", { scale: 2 / 3, crf: 26 });
-}
-// For browsers without H.264 (some open-source builds): VP9 in WebM.
-if (only === "all" || only === "full" || only === "webm") {
-  await video("Trailer", "trailer-720.webm", { scale: 2 / 3, codec: "vp9", crf: 36 });
-}
-if (only === "all" || only === "calm") {
-  await video("TrailerCalm", "trailer-calm-720.mp4", { scale: 2 / 3, crf: 26 });
-}
-if (only === "all" || only === "calm" || only === "webm") {
-  await video("TrailerCalm", "trailer-calm-720.webm", { scale: 2 / 3, codec: "vp9", crf: 36 });
+const cuts = [
+  ...(["all", "full", "calm", "webm", "stills"].includes(only) ? [{ id: "Trailer", prefix: "trailer", still: "still-hero.jpg", hero: HERO_FRAME.telegram }] : []),
+  ...(["all", "classic"].includes(only) ? [{ id: "TrailerClassic", prefix: "trailer-classic", still: "still-classic.jpg", hero: HERO_FRAME.classic }] : []),
+];
+const wants = (part) => only === "all" || only === "classic" || only === part;
+
+for (const cut of cuts) {
+  if (wants("full")) {
+    await video(cut.id, `${cut.prefix}-1080.mp4`);
+    await video(cut.id, `${cut.prefix}-720.mp4`, { scale: 2 / 3, crf: 26 });
+  }
+  // For browsers without H.264 (some open-source builds): VP9 in WebM.
+  if (wants("full") || only === "webm") await video(cut.id, `${cut.prefix}-720.webm`, { scale: 2 / 3, codec: "vp9", crf: 36 });
+  if (wants("calm")) {
+    await video(`${cut.id}Calm`, `${cut.prefix}-calm-720.mp4`, { scale: 2 / 3, crf: 26 });
+    await video(`${cut.id}Calm`, `${cut.prefix}-calm-720.webm`, { scale: 2 / 3, codec: "vp9", crf: 36 });
+  }
+  if (wants("stills")) await still(cut.id, cut.still, cut.hero, 2 / 3);
 }
 if (only === "all" || only === "stills") {
-  await still("Trailer", "still-deck.jpg", HERO_FRAME, 2 / 3);
   await still("Poster", "poster.jpg");
   await still("Social", "social-card.jpg");
 }

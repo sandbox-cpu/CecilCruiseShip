@@ -4,7 +4,7 @@
 
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 
-import { C, F } from "./theme.js";
+import { C, F } from "../theme.js";
 import { BEAT, CLOCK_SHOWINGS, DOWNBEAT, HIT } from "./timing.js";
 
 const SIZE = 150;

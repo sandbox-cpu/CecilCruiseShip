@@ -20,8 +20,15 @@ import { parseArgs } from "node:util";
 import { SECURITY_HEADERS, esc, noticePage } from "../server/pages.js";
 
 const PUBLIC = fileURLToPath(new URL("../public", import.meta.url));
-// Files the page never loads: the trailer's grain texture, raw soundtrack and source clips, and the admin page's script.
-const SKIP = new Set(["media/grain.png", "media/trailer-sound.wav", "media/trailer-src", "js/admin.js"]);
+// Files the page never loads: the trailers' grain texture, tape typeface, raw soundtracks and source clips, and the admin page's script.
+const SKIP = new Set([
+  "media/grain.png",
+  "fonts/courier-prime-bold.woff2",
+  "media/trailer-sound.wav",
+  "media/trailer-classic-sound.wav",
+  "media/trailer-src",
+  "js/admin.js",
+]);
 
 const { values } = parseArgs({ options: { out: { type: "string" } } });
 const out = resolve(values.out ?? "dist");
