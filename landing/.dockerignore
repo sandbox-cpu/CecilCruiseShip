@@ -1,0 +1,8 @@
+node_modules
+data
+exports
+test
+test-results
+trailer
+.env
+.git

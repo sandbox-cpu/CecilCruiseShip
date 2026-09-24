@@ -1,0 +1,11 @@
+# Netlify, connected to this repo: builds the static preview (no sign-ups yet).
+# For a one-off upload instead, run `npm run build:static` and drag the dist folder
+# onto https://app.netlify.com/drop.
+
+[build]
+  command = "node scripts/build-static.js"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"

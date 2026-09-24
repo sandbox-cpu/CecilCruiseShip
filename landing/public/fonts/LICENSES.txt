@@ -1,0 +1,5 @@
+Cormorant Garamond: Copyright 2015 The Cormorant Project Authors. SIL Open Font License 1.1.
+EB Garamond: Copyright 2017 The EB Garamond Project Authors. SIL Open Font License 1.1.
+
+Both are served here unmodified (Latin subsets from Google Fonts).
+Licence text: https://openfontlicense.org/open-font-license-official-text/

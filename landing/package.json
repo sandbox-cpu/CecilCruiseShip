@@ -1,0 +1,24 @@
+{
+  "name": "cecil-dead-reckoning-landing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Coming-soon landing page and early-access waitlist for Cecil: Dead Reckoning.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
+    "build:static": "node scripts/build-static.js",
+    "export": "node --disable-warning=ExperimentalWarning scripts/export.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-reporter=spec \"test/*.test.js\"",
+    "test:browser": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 --test-reporter=spec \"test/browser/*.test.js\""
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

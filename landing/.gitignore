@@ -1,0 +1,12 @@
+node_modules/
+.env
+data/
+test-results/
+trailer/node_modules/
+trailer/out/
+trailer/.cache/
+.DS_Store
+exports/
+dist/
+cecil-preview-site/
+cecil-preview-site.zip
