@@ -132,8 +132,8 @@ function setupDialog() {
     const small = matchMedia("(max-width: 900px)").matches;
     const src = calm() ? MEDIA.calm : small ? MEDIA.fullSmall : MEDIA.full;
     note.textContent = calm()
-      ? "The reduced-motion cut: no camera moves or flicker. About forty seconds, best with the sound on."
-      : "About forty seconds. Best with the sound on.";
+      ? "The reduced-motion cut: no camera moves or flicker. About forty-five seconds, best with the sound on."
+      : "About forty-five seconds. Best with the sound on.";
 
     if (typeof dialog.showModal !== "function") {
       window.open(src, "_blank", "noopener");

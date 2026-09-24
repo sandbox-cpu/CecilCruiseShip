@@ -102,7 +102,7 @@ The host usually provides `PORT`; the server picks it up automatically.
 
 ## The trailer
 
-The trailer runs about 42 seconds and fades from black to black, so it loops without a seam. Its nine scenes:
+The trailer runs about 45 seconds and fades from black to black, so it loops without a seam. Its nine scenes:
 
 1. Cecil's monogram, and *SS Halcyon · Mid-Atlantic · October 1961*.
 2. The camera pushes in on the Halcyon steaming through the swell at night: *Three nights out. Four days from the nearest port.*

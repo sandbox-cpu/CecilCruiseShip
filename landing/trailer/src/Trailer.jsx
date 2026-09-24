@@ -1,4 +1,4 @@
-// The trailer: about 42 seconds, black to black, so it loops without a seam.
+// The trailer: about 45 seconds, black to black, so it loops without a seam.
 // `calm` is the reduced-motion cut: no camera moves, drift, flicker or shaking,
 // just slow cross-fades. Both carry the same soundtrack (make-sound.mjs); the page
 // mutes the hero loop and plays sound only when someone opens the trailer.
