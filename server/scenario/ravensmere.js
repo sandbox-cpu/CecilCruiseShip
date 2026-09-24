@@ -12,9 +12,19 @@ export default {
   title: "A Nightcap at Ravensmere",
   tagline: "Sir Edmund rang for his port at eleven. By midnight he was dead.",
   setting: "Ravensmere Hall, on the Yorkshire moors. A Thursday night in November, 1978.",
+  place: "a guest at Ravensmere",
+  theme: "ravensmere",
   host: "Cecil",
   seats: { min: 3, max: 4 },
   killer: "fenn",
+  optional: "lyle",
+
+  cecil: {
+    intro: "the butler of Ravensmere Hall for forty years",
+    title: "Butler",
+    sub: "your host",
+    never: "Never give the desk drawer's combination.",
+  },
 
   // Phase lengths in seconds at normal speed (about 15 minutes in total).
   durations: { prologue: 75, act1: 300, act2: 300, accusation: 90 },
@@ -200,6 +210,11 @@ export default {
     },
   ],
 
+  // What the phones say at the top of the murderer's dossier.
+  banners: {
+    killer: "You are the murderer. Nobody else knows. Keep it that way.",
+  },
+
   // Scripted narration, spoken on the shared screen.
   narration: {
     lobby: "Good evening. I'm Cecil. I'll be looking after you tonight. Do scan the card, find a seat, and try not to touch anything.",
@@ -220,12 +235,12 @@ export default {
     ],
     act1Whispers: "I have had a private word with each of you. Some of those words were kinder than others.",
     act1Warning: "One minute remains before I call you back together.",
-    act2WithLyle: [
+    act2: [
       "Act Two. Captain Lyle and Dr Hale tell me they played billiards from a quarter to eleven until half past. Do ask them about it.",
       "The drawer of Sir Edmund's desk is now within reach of anyone clever enough to open it.",
       "You may each search one more room, and put one more question to me.",
     ],
-    act2WithoutLyle: [
+    act2Without: [
       "Act Two. Captain Lyle, who is regrettably too far into the brandy to join us, insists that he and Dr Hale played billiards from a quarter to eleven until half past.",
       "The drawer of Sir Edmund's desk is now within reach of anyone clever enough to open it.",
       "You may each search one more room, and put one more question to me.",
@@ -250,6 +265,50 @@ export default {
     closing: "Thank you all for coming. Do mind the stairs on your way out.",
     dictaphoneOpened: "Sir Edmund's dictaphone has just been opened. What it says is known only to whoever opened it.",
     wrongCode: "The drawer does not budge. Sir Edmund was a private man.",
+  },
+
+  // Words the shared screen and the phones use for this case.
+  labels: {
+    phases: { act1: "Act One · The Study", act2: "Act Two · The Recording" },
+    accuse: "Who poisoned Sir Edmund?",
+    search: {
+      title: "Search a room",
+      note: "One room per act. Only you will see what you find.",
+      later: "You can search when an act is under way.",
+      again: "You can search again next act.",
+      empty: "You haven't found anything yet. Search a room from the Act tab.",
+      restricted: "",
+    },
+    envelope: {
+      name: "Envelope Two",
+      open: "Open Envelope Two",
+      asked: "Cecil has asked you to open Envelope Two.",
+      physical: "Open the real Envelope Two from the evidence pack, then tap below.",
+      privacy: "The front goes on the big screen. The back is for your eyes only.",
+      source: "Envelope Two · only you can see the back",
+      toast: "The photograph is on the big screen. Check the back.",
+      task: "Cecil would like you to open Envelope Two. Tap 'Open Envelope Two'. The front goes on the big screen; the back is for your eyes only.",
+      taskPhysical: "Cecil would like you to open Envelope Two from the evidence pack. Tap 'Open Envelope Two' when you do, and keep the back to yourself unless you choose to share it.",
+      opened: "{opener} opened Envelope Two.",
+    },
+    lock: {
+      title: "Sir Edmund's desk drawer",
+      ready: "A brass dial with three digits. Sir Edmund was a private man.",
+      closed: "Out of reach until Act Two.",
+      notYet: "The drawer is out of reach until Act Two.",
+      heard: "You've heard Sir Edmund's last recording. It's in your clues.",
+      button: "Try the drawer",
+      opened: "The drawer opens. The dictaphone recording is in your clues.",
+      tried: "Someone tried the desk drawer. It did not budge.",
+      source: "The dictaphone",
+      aria: "Three-digit combination",
+      whisperKiller: "Someone has just opened Sir Edmund's dictaphone. You don't know what's on it. They do.",
+      whisperOther: "Someone has just opened Sir Edmund's dictaphone. It wasn't you. Perhaps ask around.",
+      revealOpener: "It was {other} who opened Sir Edmund's dictaphone. I thought you should know.",
+      digits: 3,
+    },
+    whisperNote: "A glowing envelope means Cecil has just whispered to someone. Only they know what he said.",
+    evidenceEmpty: "Nothing yet. Cecil will lay out the evidence when Act One begins.",
   },
 
   // Public evidence released onto the shared screen.
@@ -281,6 +340,11 @@ export default {
       title: "The billiards alibi",
       kind: "testimony",
       text: "Dr Hale and Captain Lyle say they played billiards from 10.45pm until 11.30pm. Captain Lyle stepped out for five minutes at 11.00pm to fetch cigars.",
+      // When nobody is playing Captain Lyle.
+      absent: {
+        character: "lyle",
+        text: "Dr Hale and Captain Lyle (per Captain Lyle, absent) say they played billiards from 10.45pm until 11.30pm. Captain Lyle stepped out for five minutes at 11.00pm to fetch cigars.",
+      },
     },
   ],
 
@@ -470,5 +534,13 @@ export default {
       fenn: "A private word, Miss Fenn. Lady Vivienne was not in the conservatory at ten past eleven. You know that. Use it whenever you like.",
       lyle: "A private word, Captain. You heard something through the study door at a quarter past ten. You haven't mentioned it. Yet.",
     },
+  },
+
+  // What the leak guard looks for in AI-written lines (regular expression sources).
+  guard: {
+    guilt: "\\b(poison\\w*|murder\\w*|kill\\w*|guilt\\w*|culprit|did it|forg\\w*|cheques?|embezzl\\w*|crush\\w*|stirr?\\w*|tablets?)\\b",
+    motive: "\\b(forg\\w*|cheques?|embezzl\\w*|signing (his|my) name)\\b",
+    code: "\\b3\\s*[-,.]?\\s*1\\s*[-,.]?\\s*4\\b|three[\\s,-]+one[\\s,-]+four",
+    confession: "\\b(i|we)\\b[^.!?]{0,40}\\b(poison\\w*|kill\\w*|murder\\w*|crush\\w*|stirr?ed|forg\\w*|put (it|them|something) in)\\b|\\b(i did it|it was me|i confess)\\b",
   },
 };

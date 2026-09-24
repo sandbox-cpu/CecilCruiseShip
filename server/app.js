@@ -16,7 +16,7 @@ import { Server } from "socket.io";
 
 import { resolveTask } from "./ai/cecil.js";
 import { Game, GameError } from "./game.js";
-import scenario from "./scenario/ravensmere.js";
+import { DEFAULT_CASE, caseList, scenarioFor } from "./scenario/index.js";
 import { scriptedLines } from "./voice.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -35,7 +35,8 @@ export function lanAddress() {
   return candidates.find(privateRange) || candidates[0] || "localhost";
 }
 
-export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null, port = 3000, log = console } = {}) {
+export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null, port = 3000, defaultCase = DEFAULT_CASE, log = console } = {}) {
+  const startingCase = scenarioFor(defaultCase) ? defaultCase : DEFAULT_CASE;
   const app = express();
   const server = http.createServer(app);
   const io = new Server(server, { serveClient: true });
@@ -49,7 +50,11 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
   app.disable("x-powered-by");
   app.get("/", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "host.html")));
   app.get(["/join", "/play"], (req, res) => res.sendFile(path.join(PUBLIC_DIR, "play.html")));
-  app.get("/pack", (req, res) => res.sendFile(path.join(PUBLIC_DIR, "pack.html")));
+  // Each case has its own printable pack; ?case= picks it (the default case otherwise).
+  app.get("/pack", (req, res) => {
+    const id = scenarioFor(req.query.case)?.id || startingCase;
+    res.sendFile(path.join(PUBLIC_DIR, id === "ravensmere" ? "pack.html" : `pack-${id}.html`));
+  });
   app.use(express.static(PUBLIC_DIR, { index: false }));
 
   app.get("/qr/:code.svg", async (req, res) => {
@@ -61,7 +66,9 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
 
   // Public scenario facts for the printable pack (nothing secret).
   app.get("/api/pack", (req, res) => {
+    const scenario = scenarioFor(req.query.case) || scenarioFor(startingCase);
     res.json({
+      id: scenario.id,
       title: scenario.title,
       tagline: scenario.tagline,
       setting: scenario.setting,
@@ -94,15 +101,28 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
     }
   }
 
-  function newGame(code) {
+  function newGame(code, caseId) {
+    const scenario = scenarioFor(caseId) || scenarioFor(startingCase);
     return new Game({ scenario, code, seed: crypto.randomInt(2 ** 31), speed, aiEnabled: Boolean(ai) });
   }
 
-  function createRoom() {
+  function createRoom(caseId) {
     const code = newCode();
-    const room = { code, hostToken: crypto.randomBytes(16).toString("hex"), game: newGame(code), sentVersion: -1, touchedAt: Date.now(), warmed: false };
+    const room = { code, hostToken: crypto.randomBytes(16).toString("hex"), game: newGame(code, caseId), sentVersion: -1, touchedAt: Date.now(), warmed: false };
     rooms.set(code, room);
     return room;
+  }
+
+  // A fresh game in the same room, keeping everyone who has joined.
+  function restart(room, caseId = room.game.scenario.id) {
+    const humans = room.game.humans();
+    const physical = room.game.physicalPack;
+    room.game = newGame(room.code, caseId);
+    for (const seat of humans) room.game.addHuman(seat.name, seat.token);
+    room.game.setPhysicalPack(physical);
+    room.warmed = false;
+    room.sentVersion = -1; // the new game's version numbers start again
+    refreshConnections(room);
   }
 
   function roomFor(code) {
@@ -135,7 +155,7 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
     const { game } = room;
     if (!force && room.sentVersion === game.version) return;
     room.sentVersion = game.version;
-    const hostView = { ...game.hostView(), joinUrl: joinUrl(room.code), voice: voice ? voice.provider : "browser" };
+    const hostView = { ...game.hostView(), joinUrl: joinUrl(room.code), voice: voice ? voice.provider : "browser", cases: caseList() };
     io.to(`host:${room.code}`).emit("state", hostView);
     for (const id of io.sockets.adapter.rooms.get(`players:${room.code}`) || []) {
       const socket = io.sockets.sockets.get(id);
@@ -157,7 +177,7 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
     runTasks(room);
     if (voice && !room.warmed && room.game.phase !== "lobby") {
       room.warmed = true;
-      voice.warm(scriptedLines(scenario)).catch(() => {});
+      voice.warm(scriptedLines(room.game.scenario)).catch(() => {});
     }
     broadcast(room);
   }
@@ -210,8 +230,8 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
         return result;
       });
 
-    handle(socket, "host:create", async () => {
-      const room = createRoom();
+    handle(socket, "host:create", async ({ caseId } = {}) => {
+      const room = createRoom(caseId);
       socket.data.hostCode = room.code;
       socket.join(`host:${room.code}`);
       broadcast(room, true);
@@ -237,16 +257,13 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
       room.game.tick(Date.now());
       room.game.advance();
     });
-    asHost("host:reset", (room) => {
-      // Same room and code; everyone who played goes back to the lobby.
-      const humans = room.game.humans();
-      const physical = room.game.physicalPack;
-      room.game = newGame(room.code);
-      for (const seat of humans) room.game.addHuman(seat.name, seat.token);
-      room.game.setPhysicalPack(physical);
-      room.warmed = false;
-      room.sentVersion = -1; // the new game's version numbers start again
-      refreshConnections(room);
+    // Same room and code; everyone who played goes back to the lobby.
+    asHost("host:reset", (room) => restart(room));
+    // Choose tonight's mystery. Only before the evening begins.
+    asHost("host:case", (room, { caseId }) => {
+      if (room.game.phase !== "lobby") throw new GameError("Finish this mystery first, then choose another.");
+      if (!scenarioFor(caseId)) throw new GameError("There's no such mystery.");
+      if (room.game.scenario.id !== scenarioFor(caseId).id) restart(room, caseId);
     });
     // Let an AI guest take over a player who has left mid-game.
     asHost("host:takeover", (room, { seatId }) => {

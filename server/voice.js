@@ -82,13 +82,14 @@ export function scriptedLines(scenario) {
     ...n.act1,
     n.act1Whispers,
     n.act1Warning,
-    ...n.act2WithLyle,
-    ...n.act2WithoutLyle,
+    ...n.act2,
+    ...(n.act2Without || []),
     n.codeHint1,
     n.codeHint2,
     n.act2Warning,
     ...n.accusation,
-    ...n.reveal,
+    // Reveal lines with a player's name in them can't be made in advance.
+    ...n.reveal.filter((line) => !line.includes("{")),
     n.closing,
     n.dictaphoneOpened,
   ];

@@ -140,3 +140,7 @@ input:focus { border-color: var(--brass); outline: none; }
   max-width: 92vw; z-index: 11; text-align: center;
 }
 .toast.show { opacity: 1; }
+
+.choice:disabled small { color: var(--faint); }
+.reveal-card.twist { border-color: var(--brass); box-shadow: 0 0 40px rgba(227, 198, 127, 0.18); }
+.twist-detail { font-size: 18px; line-height: 1.45; margin: 0 0 8px; color: var(--brass-2); font-style: italic; }

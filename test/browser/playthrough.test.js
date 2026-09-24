@@ -34,7 +34,7 @@ before(async () => {
     return;
   }
   fs.mkdirSync(SHOTS, { recursive: true });
-  app = createApp({ speed: 12, log: quietLog });
+  app = createApp({ speed: 12, log: quietLog, defaultCase: "ravensmere" });
   await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
   base = `http://127.0.0.1:${app.server.address().port}`;
 });

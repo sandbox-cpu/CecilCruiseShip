@@ -34,6 +34,20 @@ export const PHASE_NAMES = {
   reveal: "The Reveal",
 };
 
+// The name of the current part of the evening; each case names its own acts.
+export function phaseName(state) {
+  return state?.case?.labels?.phases?.[state.phase] || PHASE_NAMES[state?.phase] || "";
+}
+
+// Dress the page for tonight's case (colours, title) the moment we know it.
+export function applyCase(state, prefix = "Cecil") {
+  const c = state?.case;
+  if (!c) return;
+  if (document.body.dataset.theme !== c.theme) document.body.dataset.theme = c.theme;
+  const title = `${prefix} · ${c.title}`;
+  if (document.title !== title) document.title = title;
+}
+
 // Emit with an acknowledgement, as a promise.
 export function call(socket, event, payload = {}) {
   return new Promise((resolve) => {

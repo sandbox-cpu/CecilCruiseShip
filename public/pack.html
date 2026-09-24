@@ -159,7 +159,7 @@
 
   <script type="module">
     import { esc } from "/shared.js";
-    const data = await (await fetch("/api/pack")).json();
+    const data = await (await fetch("/api/pack?case=ravensmere")).json();
     document.getElementById("title").textContent = data.title;
     document.getElementById("tagline").textContent = data.tagline;
     document.getElementById("setting").textContent = data.setting;

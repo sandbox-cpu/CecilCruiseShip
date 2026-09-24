@@ -416,6 +416,6 @@ test("each phone only ever sees its own character's secrets", () => {
     for (const other of scenario.characters.filter((c) => c.id !== seat.characterId)) {
       assert.ok(!view.includes(JSON.stringify(other.dossier.secret).slice(1, -1)), `${seat.characterId} saw ${other.id}'s secret`);
     }
-    assert.equal(game.playerView(seat.id).character.murderer, seat.characterId === scenario.killer);
+    assert.equal(game.playerView(seat.id).character.guilty, seat.characterId === scenario.killer);
   }
 });

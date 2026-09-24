@@ -82,6 +82,24 @@ export class Game {
     return this.seatFor(this.scenario.killer);
   }
 
+  // A case may have a decoy: someone who did something terrible and believes
+  // they are the murderer. Only the reveal says otherwise.
+  decoySeat() {
+    return this.scenario.decoy ? this.seatFor(this.scenario.decoy) : null;
+  }
+
+  // Seats genuinely trying to find the murderer: neither the killer nor the decoy.
+  truthSeekers() {
+    const killer = this.killerSeat();
+    const decoy = this.decoySeat();
+    const seekers = this.seats.filter((s) => s !== killer && s !== decoy);
+    return seekers.length ? seekers : this.seats.filter((s) => s !== killer);
+  }
+
+  get labels() {
+    return this.scenario.labels;
+  }
+
   humans() {
     return this.seats.filter((s) => s.kind === "human");
   }
@@ -326,7 +344,8 @@ export class Game {
     const s = this.scenario;
     const events = [];
     const at = (seconds, key, run) => events.push({ key, atMs: this.ms(seconds), run });
-    const hasLyle = Boolean(this.seatFor("lyle"));
+    // The optional character is only cast in four-seat games; the narration notices.
+    const optionalCast = !s.optional || Boolean(this.seatFor(s.optional));
 
     if (phase === "prologue") {
       at(0, "intro", () => {
@@ -357,7 +376,7 @@ export class Game {
 
     if (phase === "act2") {
       at(0, "open", () => {
-        (hasLyle ? s.narration.act2WithLyle : s.narration.act2WithoutLyle).forEach((line) => this.say(line));
+        (optionalCast ? s.narration.act2 : s.narration.act2Without).forEach((line) => this.say(line));
         this.releaseEvidence("act2");
       });
       at(8, "guests", () => this.guestStatements("act2"));
@@ -375,16 +394,22 @@ export class Game {
       at(5, "guest-votes", () => this.guestVotes());
     }
 
+    // Private words that belong to one case: to a character, at a moment.
+    for (const w of (s.whispers || []).filter((x) => x.phase === phase)) {
+      at(w.at, `whisper-${w.key}`, () => {
+        const seat = this.seatFor(w.to);
+        if (seat) this.whisper(seat, { text: w.text });
+      });
+    }
+
     return events;
   }
 
   releaseEvidence(phase) {
     for (const item of this.scenario.publicEvidence.filter((e) => e.phase === phase)) {
-      if (item.id === "p_billiards" && !this.seatFor("lyle")) {
-        this.evidence.push({ ...item, text: item.text.replace("say they", "(per Captain Lyle, absent) say they") });
-      } else {
-        this.evidence.push(item);
-      }
+      const { absent, ...shown } = item;
+      if (absent && !this.seatFor(absent.character)) shown.text = absent.text;
+      this.evidence.push(shown);
     }
     this.touch();
   }
@@ -404,9 +429,13 @@ export class Game {
       return;
     }
     if (level === 1) {
-      const keyRoom = this.scenario.rooms.find((r) => this.scenario.clues[r.clue].strength === "key");
-      if (keyRoom && !this.searchedRooms.has(keyRoom.id)) this.say(n.unsearchedHint);
+      const unsearched = this.keyRooms().some((r) => !this.searchedRooms.has(r.id));
+      if (unsearched) this.say(n.unsearchedHint);
     }
+  }
+
+  keyRooms() {
+    return this.scenario.rooms.filter((r) => this.scenario.clues[r.clue].strength === "key");
   }
 
   // ------------------------------------------------------------ player acts
@@ -446,6 +475,7 @@ export class Game {
     if (seat.searches[this.phase]) throw new GameError("You've already searched a room this act.");
     const room = this.scenario.rooms.find((r) => r.id === roomId);
     if (!room) throw new GameError("There's no such room.");
+    if (!this.canEnter(seat, room)) throw new GameError(`${room.name} is crew only until Act Two.`);
     seat.searches[this.phase] = roomId;
     const firstVisit = !this.searchedRooms.has(roomId);
     this.searchedRooms.add(roomId);
@@ -458,6 +488,12 @@ export class Game {
       this.whisper(owner, { text: `Someone has searched ${room.ownerRef}. You don't know who.` });
     }
     return this.clueCard(room.clue);
+  }
+
+  // Crew-only places: crew characters may go in at any time, passengers from Act Two.
+  canEnter(seat, room) {
+    if (!room.crewOnly || this.phase === "act2") return true;
+    return Boolean(this.character(seat.characterId)?.crew);
   }
 
   askAllowance(seat) {
@@ -633,19 +669,16 @@ export class Game {
   }
 
   requestEnvelope() {
+    // An innocent human opens it: never the murderer, and never the decoy if anyone else can.
     const humans = this.humans();
     const innocents = humans.filter((s) => s.characterId !== this.scenario.killer);
-    const opener = this.pick(innocents.length ? innocents : humans);
+    const seekers = innocents.filter((s) => s.characterId !== this.scenario.decoy);
+    const opener = this.pick(seekers.length ? seekers : innocents.length ? innocents : humans);
+    const env = this.labels.envelope;
     this.envelope.requested = true;
     this.envelope.openerSeatId = opener.id;
     this.say(this.fill(this.scenario.narration.envelope, { opener: this.label(opener) }));
-    this.whisper(opener, {
-      kind: "task",
-      title: "Envelope Two",
-      text: this.physicalPack
-        ? "Cecil would like you to open Envelope Two from the evidence pack. Tap 'Open Envelope Two' when you do, and keep the back to yourself unless you choose to share it."
-        : "Cecil would like you to open Envelope Two. Tap 'Open Envelope Two'. The front goes on the big screen; the back is for your eyes only.",
-    });
+    this.whisper(opener, { kind: "task", title: env.name, text: this.physicalPack ? env.taskPhysical : env.task });
   }
 
   autoOpenEnvelope() {
@@ -659,19 +692,20 @@ export class Game {
     const opener = this.seat(this.envelope.openerSeatId);
     this.giveClue(opener, "envelope2", "envelope");
     this.evidence.push({ id: "p_envelope", title: this.scenario.envelope.title, kind: "photo", text: this.scenario.envelope.front });
-    this.post({ kind: "event", text: `${this.label(opener)} opened Envelope Two.` });
+    this.post({ kind: "event", text: this.fill(this.labels.envelope.opened, { opener: this.label(opener) }) });
   }
 
   enterCode(seatId, code, now = this.lastTickAt) {
     const seat = this.seat(seatId);
+    const lock = this.labels.lock;
     this.requireActive(seat);
-    if (this.phase !== "act2") throw new GameError("The drawer is out of reach until Act Two.");
+    if (this.phase !== "act2") throw new GameError(lock.notYet);
     if (this.dictaphone.heardBy.has(seat.id)) throw new GameError("You've already heard the recording.");
     if (now < seat.codeCooldownUntil) throw new GameError("Give the dial a moment.");
     const clean = String(code || "").replace(/\D/g, "");
     if (clean !== this.scenario.dictaphone.code) {
       seat.codeCooldownUntil = now + 3000;
-      this.post({ kind: "event", text: "Someone tried the desk drawer. It did not budge." });
+      this.post({ kind: "event", text: lock.tried });
       return { opened: false, message: this.scenario.narration.wrongCode };
     }
     this.dictaphone.heardBy.add(seat.id);
@@ -681,10 +715,7 @@ export class Game {
       this.say(this.scenario.narration.dictaphoneOpened);
       // Everyone else hears about it, so a whisper to the killer alone can't give them away.
       for (const other of this.seats.filter((s) => s !== seat)) {
-        const text =
-          other.characterId === this.scenario.killer
-            ? "Someone has just opened Sir Edmund's dictaphone. You don't know what's on it. They do."
-            : "Someone has just opened Sir Edmund's dictaphone. It wasn't you. Perhaps ask around.";
+        const text = other.characterId === this.scenario.killer ? lock.whisperKiller : lock.whisperOther;
         this.whisper(other, { text });
       }
     }
@@ -725,10 +756,13 @@ export class Game {
     if (this.seats.every((s) => s.vote)) this.advanceSoon();
   }
 
+  // AI guests vote like a sensible player: the murderer (and the decoy, who
+  // thinks they are one) deflect; everyone else follows the key evidence once
+  // it has surfaced, and their own suspicions until then.
   guestVotes() {
     const evidenceSurfaced =
       Boolean(this.dictaphone.openedBy) ||
-      this.searchedRooms.has("office") ||
+      this.keyRooms().some((r) => this.searchedRooms.has(r.id)) ||
       this.seats.some((s) => s.clues.some((c) => c.strength === "key"));
     for (const seat of this.seats.filter((s) => s.kind === "ai" && !s.vote)) {
       const c = this.character(seat.characterId);
@@ -800,13 +834,14 @@ export class Game {
     const moves = [];
     const add = (move) => moves.push({ id: `m${moves.length + 1}`, slot, ...move });
     const killer = this.killerSeat();
-    const innocents = this.seats.filter((x) => x !== killer);
+    const decoy = this.decoySeat();
+    const seekers = this.truthSeekers();
     const humans = this.byAttention(this.humans());
 
     // Fairness: if the innocents still hold nothing that points at the truth
     // late in the game, Cecil must hand one of them a key clue.
     const innocentsHaveKey =
-      innocents.some((x) => x.clues.some((c) => c.strength === "key")) || Boolean(this.dictaphone.openedBy);
+      seekers.some((x) => x.clues.some((c) => c.strength === "key")) || Boolean(this.dictaphone.openedBy);
     const mustHelp = slot !== "a1" && !innocentsHaveKey;
 
     const extras = Object.entries(s.clues).filter(([id, clue]) => {
@@ -818,13 +853,14 @@ export class Game {
     });
     for (const [clueId, clue] of extras) {
       if (mustHelp && clue.strength !== "key") continue;
-      const candidates = this.byAttention(
-        this.seats.filter((x) => {
-          if (x.characterId === clue.extra.about) return false;
-          if (clue.strength === "key" || clue.strength === "support") return x !== killer;
-          return true;
-        }),
-      );
+      const eligible = this.seats.filter((x) => {
+        if (x.characterId === clue.extra.about) return false;
+        if (clue.strength === "key" || clue.strength === "support") return x !== killer;
+        return true;
+      });
+      // Real clues go to people hunting the murderer first, the decoy only as a last resort.
+      const preferred = eligible.filter((x) => x !== decoy);
+      const candidates = this.byAttention(preferred.length ? preferred : eligible);
       // Herrings: sneakiest in the killer's hands (ammunition); otherwise anyone.
       const target = clue.strength === "herring" && killer && killer.characterId !== clue.extra.about ? killer : candidates[0];
       if (target) {
@@ -980,7 +1016,7 @@ export class Game {
       }
       case "reveal_opener": {
         this.dictaphone.toldOpener.add(target.id);
-        this.whisper(target, { text: `${intro}It was ${values.other} who opened Sir Edmund's dictaphone. I thought you should know.` });
+        this.whisper(target, { text: `${intro}${this.fill(this.labels.lock.revealOpener, values)}` });
         publicLine ||= `A private word with ${values.target}.`;
         break;
       }
@@ -1011,7 +1047,8 @@ export class Game {
     if (caught) this.say(`The votes are in. You have accused ${this.label(killer)}. Let me tell you what really happened.`);
     else if (top.length === 1) this.say(`The votes are in. You have accused ${this.label(this.seat(top[0]))}. Let me tell you what really happened.`);
     else this.say("The votes are in, and you can't agree. Let me tell you what really happened.");
-    n.reveal.forEach((line) => this.say(line));
+    const decoy = this.decoySeat();
+    n.reveal.forEach((line) => this.say(this.fill(line, { decoy: decoy ? this.label(decoy) : "Someone" })));
     this.say(caught ? "Well done. Justice, of a sort, is served." : "Which means, I'm sorry to say, that a murderer walks free tonight.");
     const task = { id: this.id("t"), type: "closing", phase: "reveal" };
     this.queue(task);
@@ -1033,12 +1070,18 @@ export class Game {
     const max = Math.max(...tally.values());
     const top = max > 0 ? [...tally.entries()].filter(([, n]) => n === max).map(([id]) => id) : [];
     const caught = top.length === 1 && top[0] === killer.id;
+    const decoy = this.decoySeat();
     const scores = this.seats.map((seat) => {
       const lines = [];
       if (seat === killer) {
         if (!caught) lines.push(["Got away with murder", 3]);
         const misled = this.seats.filter((s) => s !== killer && s.vote && s.vote !== killer.id).length;
         if (misled) lines.push([`Misled ${misled} ${misled === 1 ? "person" : "people"}`, misled]);
+      } else if (seat === decoy) {
+        // They played to escape blame for a murder they didn't commit.
+        const blamed = top.length === 1 && top[0] === decoy.id;
+        if (!blamed) lines.push(["Nobody pinned it on you", 2]);
+        if (seat.vote === killer.id) lines.push(["Accused the real murderer", 2]);
       } else {
         if (seat.vote === killer.id) lines.push(["Accused the murderer", 2]);
         if (caught) lines.push(["The murderer was caught", 1]);
@@ -1048,6 +1091,7 @@ export class Game {
     });
     return {
       killerSeatId: killer.id,
+      decoySeatId: decoy ? decoy.id : null,
       caught,
       top,
       tally: [...tally.entries()].map(([seatId, votes]) => ({ seatId, votes })),
@@ -1086,6 +1130,24 @@ export class Game {
       lies: this.seats.map((s) => ({ seatId: s.id, text: this.character(s.characterId).reveal })),
       mischief: this.mischiefLog.map((m) => m.describe),
       closing: this.closing,
+      // A case's twist is only ever sent once the votes are in.
+      twist: r.decoySeatId ? this.scenario.twist || null : null,
+    };
+  }
+
+  // What every screen may know about tonight's case: nothing secret.
+  caseView() {
+    const s = this.scenario;
+    return {
+      id: s.id,
+      title: s.title,
+      subtitle: s.subtitle || null,
+      tagline: s.tagline,
+      setting: s.setting,
+      theme: s.theme || s.id,
+      host: { name: s.host, title: s.cecil.title, sub: s.cecil.sub },
+      lobbyLine: s.narration.lobby,
+      labels: s.labels,
     };
   }
 
@@ -1096,6 +1158,7 @@ export class Game {
       title: s.title,
       tagline: s.tagline,
       setting: s.setting,
+      case: this.caseView(),
       phase: this.phase,
       version: this.version,
       timer: this.timer(),
@@ -1122,10 +1185,28 @@ export class Game {
     };
   }
 
+  // A seat's own character, as its phone sees it. The murderer and a decoy get
+  // the same shape (guilty, with a banner), so nothing in the data tells a
+  // decoy that they are not the murderer.
+  characterView(seat) {
+    const s = this.scenario;
+    const c = this.character(seat.characterId);
+    if (!c) return null;
+    const role = c.id === s.killer ? "killer" : c.id === s.decoy ? "decoy" : null;
+    return {
+      id: c.id,
+      name: c.name,
+      short: c.short,
+      bio: c.bio,
+      dossier: c.dossier,
+      guilty: Boolean(role),
+      banner: role ? s.banners[role] : null,
+    };
+  }
+
   playerView(seatId) {
     const seat = this.seat(seatId);
     const s = this.scenario;
-    const c = this.character(seat.characterId);
     const inAct = ACTS.includes(this.phase) && !this.paused;
     const guests = this.seats.filter((x) => x.kind === "ai" && x !== seat);
     const pendingAsk = [...this.pending.values()].some((t) => t.type === "ask" && t.seatId === seat.id);
@@ -1138,14 +1219,13 @@ export class Game {
     return {
       code: this.code,
       title: s.title,
+      case: this.caseView(),
       phase: this.phase,
       version: this.version,
       timer: this.timer(),
       aiEnabled: this.aiEnabled,
       you: { id: seat.id, name: seat.name, kind: seat.kind },
-      character: c
-        ? { id: c.id, name: c.name, short: c.short, bio: c.bio, dossier: c.dossier, murderer: c.id === s.killer }
-        : null,
+      character: this.characterView(seat),
       lineup: this.seats.map((x) => this.publicSeat(x)),
       inbox: seat.inbox,
       clues: seat.clues,
@@ -1155,7 +1235,10 @@ export class Game {
         search: {
           available: inAct && !seat.searches[this.phase],
           used: seat.searches[this.phase] || null,
-          rooms: s.rooms.map((r) => ({ id: r.id, name: r.name })),
+          rooms: s.rooms.map((r) => {
+            const open = !seat.characterId || this.canEnter(seat, r);
+            return { id: r.id, name: r.name, open, note: open ? null : this.labels.search.restricted };
+          }),
         },
         ask: {
           available: inAct && this.askAllowance(seat) > 0,
@@ -1201,7 +1284,7 @@ export class Game {
     const s = this.scenario;
     const characters = s.characters.map((c) =>
       [
-        `## ${c.name} (${c.id})${c.id === s.killer ? " — THE MURDERER" : ""}`,
+        `## ${c.name} (${c.id})${c.id === s.killer ? " — THE MURDERER" : c.id === s.decoy ? " — THE DECOY: believes they are the murderer, and is not" : ""}`,
         `Public: ${c.bio}`,
         `Tells everyone: ${c.dossier.story}`,
         `Secret: ${c.dossier.secret}`,
@@ -1240,8 +1323,8 @@ export class Game {
           `heard dictaphone: ${this.dictaphone.heardBy.has(seat.id) ? "yes" : "no"}.`,
       );
     }
-    lines.push(`Envelope Two: ${this.envelope.opened ? "opened" : this.envelope.requested ? "requested" : "not yet"}.`);
-    lines.push(`Dictaphone opened by: ${this.dictaphone.openedBy ? this.label(this.seat(this.dictaphone.openedBy)) : "nobody yet"}.`);
+    lines.push(`${this.labels.envelope.name}: ${this.envelope.opened ? "opened" : this.envelope.requested ? "requested" : "not yet"}.`);
+    lines.push(`${this.labels.lock.title} opened by: ${this.dictaphone.openedBy ? this.label(this.seat(this.dictaphone.openedBy)) : "nobody yet"}.`);
     lines.push(`Recent: ${this.feed.slice(-8).map((f) => f.text).join(" | ")}`);
     return lines.join("\n");
   }
@@ -1253,7 +1336,7 @@ export class Game {
     const s = this.scenario;
     const others = this.seats.filter((x) => x !== seat).map((x) => `${this.label(x)}: ${this.character(x.characterId).bio}`);
     return [
-      `You are ${c.name}, a guest at ${s.title.replace("A Nightcap at ", "")} tonight. ${c.dossier.who}`,
+      `You are ${c.name}, ${s.place} tonight. ${c.dossier.who}`,
       `Victim: ${s.victim.name}. ${s.victim.summary}`,
       `Your public story: ${c.dossier.story}`,
       `The truth only you know: ${c.dossier.secret}`,

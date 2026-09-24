@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evidence pack · Dead Reckoning</title>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    @page { size: A4; margin: 14mm; }
+    body.pack { background: #cfd6d8; color: var(--paper-ink); font-family: var(--serif); }
+    .toolbar { position: sticky; top: 0; z-index: 2; display: flex; gap: 12px; align-items: center; justify-content: center; padding: 12px; background: #07121c; }
+    .toolbar p { margin: 0; color: #9db2bd; font-family: var(--sans); font-size: 14px; }
+    .page { background: #f3eee1; width: min(210mm, 100%); min-height: 297mm; margin: 18px auto; padding: 16mm; box-shadow: 0 10px 30px rgba(0,0,0,0.25); page-break-after: always; break-after: page; position: relative; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    h1 { font-weight: 500; font-size: 44px; margin: 0 0 6px; }
+    h2 { font-weight: 500; font-size: 26px; margin: 0 0 12px; }
+    .kicker { font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.2em; font-size: 11px; color: #1f5f7a; font-weight: 700; }
+    .rule { border: 0; border-top: 1px solid #a9b6b9; margin: 16px 0; }
+    ol.steps { padding-left: 20px; line-height: 1.6; }
+    .cut { border: 2px dashed #7f9296; border-radius: 6px; padding: 10px; position: relative; }
+    .cut::before { content: "✂ cut along the dashed line"; position: absolute; top: -10px; left: 12px; background: #f3eee1; padding: 0 6px; font-family: var(--sans); font-size: 10px; color: #1f5f7a; }
+    .tents { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+    .tent { height: 62mm; display: grid; grid-template-rows: 1fr 1fr; }
+    .tent > div { display: grid; place-items: center; text-align: center; padding: 6px; }
+    .tent .top { transform: rotate(180deg); border-bottom: 1px dotted #7f9296; }
+    .tent .name { font-size: 22px; }
+    .tent .bio { font-size: 12px; font-style: italic; color: #3f5360; margin-top: 4px; }
+    .tent .line { font-family: var(--sans); font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: #1f5f7a; margin-bottom: 6px; }
+    .programme { border: 3px double #17222c; padding: 12mm 12mm 10mm; }
+    .programme header { text-align: center; }
+    .programme h1 { font-size: 36px; margin: 6px 0 2px; letter-spacing: 0.02em; }
+    .programme .date { font-style: italic; color: #3f5360; margin: 0 0 12px; }
+    .programme table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .programme td { padding: 6px 4px; border-bottom: 1px dotted #a9b6b9; vertical-align: top; }
+    .programme td.t { width: 22mm; font-family: var(--sans); font-size: 12px; font-weight: 700; color: #1f5f7a; }
+    .programme .notice { margin-top: 12px; border: 2px solid #b23a36; color: #7a1f1b; padding: 8px 10px; text-align: center; font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .programme .small { font-size: 12px; color: #3f5360; text-align: center; margin: 10px 0 0; }
+    .telegram { background: #fbf5dc; border: 1px solid #c8b778; padding: 8mm; font-family: "Courier New", Courier, monospace; color: #1b1b1b; }
+    .telegram .head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #1b1b1b; padding-bottom: 4px; margin-bottom: 8px; font-family: var(--sans); }
+    .telegram .brand { font-weight: 800; letter-spacing: 0.3em; font-size: 16px; }
+    .telegram .strip { background: #fff; border: 1px solid #d9cfa6; padding: 6px 8px; margin: 6px 0; font-size: 14px; line-height: 1.5; letter-spacing: 0.04em; }
+    .telegram .meta { font-size: 11px; font-family: var(--sans); color: #555; }
+    .fold { font-family: var(--sans); font-size: 11px; color: #1f5f7a; text-align: center; margin: 3mm 0; border-top: 1px dashed #7f9296; padding-top: 2mm; }
+    .env-label { display: grid; place-items: center; height: 58mm; text-align: center; border: 3px double #17222c; }
+    .env-label .num { font-size: 40px; line-height: 1.1; }
+    svg { max-width: 100%; height: auto; }
+    @media print {
+      body.pack { background: none; }
+      .toolbar { display: none; }
+      .page { margin: 0; box-shadow: none; width: auto; min-height: auto; padding: 0; }
+    }
+  </style>
+</head>
+<body class="pack">
+  <div class="toolbar">
+    <p>The evidence pack is optional. Print it for a table-top feel; the game works fine without it.</p>
+    <button class="btn primary" onclick="window.print()">Print the pack</button>
+  </div>
+
+  <!-- 1. Cover and host notes -->
+  <section class="page">
+    <p class="kicker">An evening with Cecil · evidence pack</p>
+    <h1 id="title">Dead Reckoning</h1>
+    <p><em id="tagline"></em></p>
+    <p id="setting"></p>
+    <hr class="rule">
+    <h2>Before your guests come aboard</h2>
+    <ol class="steps">
+      <li>Print this pack. Cut out the place cards and fold them so the names stand up on the table.</li>
+      <li>Cut out the telegram on page 5 and <strong>fold the bottom strip under</strong> along the dashed line, without reading it. Put it in an envelope and stick the "Purser's Bureau" label on the front. (No peeking. Cecil will know.)</li>
+      <li>Put Today's Programme and the deck plan in the middle of the table. Don't open the telegram until Cecil asks.</li>
+      <li>On the laptop, run Cecil, choose <em>Dead Reckoning</em> in the lobby and tick "We've printed the evidence pack".</li>
+      <li>Everyone scans the QR code with their phone. Cecil does the rest.</li>
+    </ol>
+    <hr class="rule">
+    <h2>How the evening works</h2>
+    <p>Everyone plays someone aboard the SS Halcyon. Your phone is private: it holds your character, your secrets and anything Cecil whispers to you. The big screen is shared: Cecil narrates, lays out evidence and calls you back together. One of you is the murderer. Nobody else knows who, not even the host, because there isn't one. Cecil knows everything. Humans get to play.</p>
+    <p><strong>Who's who</strong> (roles are dealt at random when the game begins):</p>
+    <ul id="cast"></ul>
+  </section>
+
+  <!-- 2. Place cards -->
+  <section class="page">
+    <p class="kicker">Place cards</p>
+    <h2>Fold along the dotted line</h2>
+    <div class="tents" id="tents"></div>
+  </section>
+
+  <!-- 3. Deck plan -->
+  <section class="page">
+    <p class="kicker">For the middle of the table</p>
+    <h2>SS Halcyon, looking at her starboard side</h2>
+    <svg viewBox="0 0 760 470" role="img" aria-label="A side view of the SS Halcyon showing her decks and the places aboard">
+      <defs>
+        <pattern id="sea" width="16" height="8" patternUnits="userSpaceOnUse"><path d="M0 6 Q4 2 8 6 T16 6" fill="none" stroke="#9fb6c0" stroke-width="1.2"/></pattern>
+      </defs>
+      <rect x="0" y="392" width="760" height="78" fill="url(#sea)"/>
+      <!-- funnel and masts -->
+      <path d="M338 30 h62 l10 70 h-82z" fill="#17222c"/>
+      <rect x="336" y="44" width="68" height="9" fill="#b23a36"/>
+      <line x1="610" y1="18" x2="610" y2="100" stroke="#17222c" stroke-width="3"/>
+      <line x1="150" y1="30" x2="150" y2="100" stroke="#17222c" stroke-width="3"/>
+      <!-- hull and superstructure -->
+      <path d="M40 150 H700 L742 150 L706 398 H70 Q44 360 40 300 Z" fill="#f7f3e8" stroke="#17222c" stroke-width="3"/>
+      <rect x="120" y="100" width="520" height="50" fill="#f7f3e8" stroke="#17222c" stroke-width="2.5"/>
+      <!-- deck lines -->
+      <g stroke="#17222c" stroke-width="1.6">
+        <line x1="40" y1="200" x2="735" y2="200"/>
+        <line x1="44" y1="250" x2="728" y2="250"/>
+        <line x1="50" y1="300" x2="721" y2="300"/>
+        <line x1="58" y1="350" x2="713" y2="350"/>
+      </g>
+      <!-- deck names -->
+      <g font-family="Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#1f5f7a">
+        <text x="128" y="96">BOAT DECK</text>
+        <text x="50" y="164">PROMENADE DECK</text>
+        <text x="50" y="214">A DECK</text>
+        <text x="54" y="264">B DECK</text>
+        <text x="60" y="314">C DECK</text>
+      </g>
+      <!-- lifeboats: starboard side, odd numbers -->
+      <g fill="#fff" stroke="#17222c" stroke-width="1.5">
+        <rect x="170" y="80" width="56" height="16" rx="8"/>
+        <rect x="250" y="80" width="56" height="16" rx="8"/>
+        <rect x="430" y="80" width="56" height="16" rx="8"/>
+        <rect x="510" y="80" width="56" height="16" rx="8"/>
+      </g>
+      <g font-family="Georgia, serif" font-size="11" text-anchor="middle" fill="#17222c">
+        <text x="538" y="92">1</text><text x="458" y="92">3</text><text x="278" y="92">5</text>
+      </g>
+      <rect x="170" y="80" width="56" height="16" rx="8" fill="#b23a36" stroke="#17222c" stroke-width="1.5"/>
+      <text x="198" y="92" font-family="Georgia, serif" font-size="11" text-anchor="middle" fill="#fff">7</text>
+      <text x="198" y="72" font-family="Georgia, serif" font-size="12" font-style="italic" text-anchor="middle" fill="#7a1f1b">No. 7 boat</text>
+      <!-- rooms -->
+      <g font-family="Georgia, serif" fill="#17222c" text-anchor="middle">
+        <text x="588" y="130" font-size="14">Bridge</text>
+        <text x="520" y="130" font-size="13">Radio room</text>
+        <text x="370" y="130" font-size="12" font-style="italic">funnel casing</text>
+        <text x="560" y="182" font-size="15">Library</text>
+        <text x="380" y="182" font-size="17">Ballroom</text>
+        <text x="190" y="182" font-size="15">Smoking Room</text>
+        <text x="560" y="232" font-size="13">Cabins A1–A99</text>
+        <text x="400" y="232" font-size="13">Purser's Bureau</text>
+        <text x="260" y="232" font-size="14">Cabin A128</text>
+        <text x="390" y="282" font-size="13" font-style="italic">passenger cabins</text>
+        <text x="400" y="332" font-size="14">the crew alleyway ("the Burma Road")</text>
+        <text x="600" y="332" font-size="12">linen room</text>
+        <text x="390" y="378" font-size="12" font-style="italic">crew quarters · galleys · engine rooms</text>
+      </g>
+      <!-- stairs -->
+      <g stroke="#1f5f7a" stroke-width="2.4" fill="none">
+        <line x1="330" y1="100" x2="330" y2="250"/>
+      </g>
+      <text x="336" y="244" font-family="Arial, sans-serif" font-size="9" fill="#1f5f7a">passenger stair</text>
+      <g stroke="#b23a36" stroke-width="2.4" stroke-dasharray="6 4" fill="none">
+        <line x1="150" y1="100" x2="150" y2="340"/>
+        <line x1="150" y1="340" x2="690" y2="340"/>
+        <line x1="222" y1="214" x2="222" y2="236"/>
+      </g>
+      <text x="92" y="138" font-family="Arial, sans-serif" font-size="9" fill="#7a1f1b" text-anchor="end">crew</text>
+      <text x="92" y="149" font-family="Arial, sans-serif" font-size="9" fill="#7a1f1b" text-anchor="end">stair</text>
+      <line x1="94" y1="140" x2="148" y2="140" stroke="#7a1f1b" stroke-width="0.8"/>
+      <text x="226" y="248" font-family="Arial, sans-serif" font-size="9" fill="#7a1f1b">crew door</text>
+      <text x="720" y="140" font-family="Georgia, serif" font-size="11" font-style="italic" fill="#17222c" text-anchor="end">bow →</text>
+      <text x="44" y="140" font-family="Georgia, serif" font-size="11" font-style="italic" fill="#17222c">← stern</text>
+    </svg>
+    <p><em>Solid blue: the passenger stair. Dashed red: crew-only routes. Passengers are not permitted beyond the crew doors.</em></p>
+    <p><em>No. 7 lifeboat hangs aft on the starboard side of the Boat Deck. The next port, Bridgetown, is four days' steaming away.</em></p>
+  </section>
+
+  <!-- 4. Today's Programme -->
+  <section class="page">
+    <div class="programme">
+      <header>
+        <p class="kicker">SS Halcyon · Autumn Caribbean Cruise</p>
+        <h1>Today's Programme</h1>
+        <p class="date">Wednesday 11th October 1961 · At sea, bound for Bridgetown</p>
+      </header>
+      <table>
+        <tr><td class="t">7.30am</td><td>Early morning tea served in your cabin</td></tr>
+        <tr><td class="t">10.30am</td><td>Deck quoits on the Boat Deck, aft</td></tr>
+        <tr><td class="t">11.00am</td><td>Hot bouillon served on the Promenade Deck</td></tr>
+        <tr><td class="t">4.00pm</td><td>Tea dance in the Ballroom</td></tr>
+        <tr><td class="t">7.00pm</td><td>Dinner, first sitting</td></tr>
+        <tr><td class="t">8.30pm</td><td>Dinner, second sitting. The Captain's table</td></tr>
+        <tr><td class="t">10.00pm</td><td>Tombola in the Ballroom with your Social Hostess, Miss Ashdown</td></tr>
+        <tr><td class="t">11.30pm</td><td>The Captain's Gala Ball. Dress: formal</td></tr>
+        <tr><td class="t">Midnight</td><td>The Gala Buffet</td></tr>
+        <tr><td class="t">All night</td><td>The Smoking Room remains open for cards</td></tr>
+      </table>
+      <p class="notice">Please note: clocks will be retarded one hour at 2.00am tonight.<br>Kindly put your watches back on retiring.</p>
+      <p class="small">The Purser's Bureau is open until midnight for currency, valuables and telegrams. Weather: wind south-westerly, force 5; rain later. Sea: moderate swell.</p>
+    </div>
+  </section>
+
+  <!-- 5. The telegram -->
+  <section class="page">
+    <p class="kicker">The telegram · do not open until Cecil asks</p>
+    <div class="cut env-label">
+      <div><p class="kicker">Purser's Bureau</p><p class="num">To await collection</p><p><em>Mr M. Crane, Cabin A128. Not to be opened until Cecil asks.</em></p></div>
+    </div>
+    <div class="cut" style="margin-top: 10mm">
+      <div class="telegram">
+        <div class="head"><span class="brand">MARCONIGRAM</span><span class="meta">SS HALCYON · RADIO ROOM</span></div>
+        <p class="strip" id="tel-front"></p>
+        <p class="meta">Received 11.50pm ship's time. Held at the Purser's Bureau: 'Do Not Disturb' card displayed.</p>
+        <p class="fold">✂ fold this strip under, along the dashed line, before sealing</p>
+        <p class="strip" id="tel-back"></p>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { esc } from "/shared.js";
+    const data = await (await fetch("/api/pack?case=halcyon")).json();
+    document.getElementById("title").textContent = data.title;
+    document.getElementById("tagline").textContent = data.tagline;
+    document.getElementById("setting").textContent = data.setting;
+    document.getElementById("cast").innerHTML = data.characters
+      .map((c) => `<li><strong>${esc(c.name)}</strong>: ${esc(c.bio)}${c.core ? "" : " <em>(four-player games only)</em>"}</li>`)
+      .join("");
+    document.getElementById("tents").innerHTML = data.characters
+      .map((c) => {
+        const face = `<div><div class="line">SS Halcyon</div><div class="name">${esc(c.name)}</div><div class="bio">${esc(c.bio)}</div></div>`;
+        return `<div class="cut tent"><div class="top">${face}</div><div>${face}</div></div>`;
+      })
+      .join("");
+    document.getElementById("tel-front").textContent = data.envelope.front.replace(/^.*?'/, "").replace(/'$/, "");
+    document.getElementById("tel-back").textContent = data.envelope.back.replace(/^.*?'/, "").replace(/'$/, "");
+  </script>
+</body>
+</html>

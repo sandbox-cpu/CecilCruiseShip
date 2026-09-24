@@ -24,7 +24,8 @@ const voice = {
 };
 
 before(async () => {
-  server = createApp({ speed: 50, voice, log: quietLog, publicUrl: "http://cecil.test:3000" });
+  // These tests play A Nightcap at Ravensmere; test/halcyon-server.test.js covers the other case.
+  server = createApp({ speed: 50, voice, log: quietLog, publicUrl: "http://cecil.test:3000", defaultCase: "ravensmere" });
   await new Promise((resolve) => server.server.listen(0, "127.0.0.1", resolve));
   base = `http://127.0.0.1:${server.server.address().port}`;
 });

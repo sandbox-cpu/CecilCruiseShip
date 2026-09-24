@@ -1,5 +1,5 @@
 // The shared screen: lobby with QR code, Cecil's narration, the table, evidence and the reveal.
-import { call, clock, Countdown, esc, lines, patch, PHASE_NAMES, storage } from "/shared.js";
+import { applyCase, call, clock, Countdown, esc, lines, patch, phaseName, storage } from "/shared.js";
 
 const $ = (id) => document.getElementById(id);
 const socket = io();
@@ -17,13 +17,20 @@ let lastWhisper = new Map();
 
 // ------------------------------------------------------------ connection
 
+// "/?case=halcyon" opens a new table on that mystery; otherwise the last one
+// this screen chose, or the server's default.
+const askedCase = new URLSearchParams(location.search).get("case");
+
 async function connect() {
   const previous = saved.get();
   if (previous) {
     const resumed = await call(socket, "host:resume", previous);
-    if (resumed.ok) return;
+    if (resumed.ok) {
+      if (askedCase) call(socket, "host:case", { caseId: askedCase });
+      return;
+    }
   }
-  const created = await call(socket, "host:create");
+  const created = await call(socket, "host:create", { caseId: askedCase || prefs.get()?.caseId });
   if (created.ok) saved.set({ code: created.code, hostToken: created.hostToken });
 }
 
@@ -48,6 +55,7 @@ const countdown = new Countdown((ms) => {
 
 function render() {
   const phase = state.phase;
+  applyCase(state);
   $("lobby").hidden = phase !== "lobby";
   $("stage").hidden = phase === "lobby" || phase === "reveal";
   $("reveal").hidden = phase !== "reveal";
@@ -66,6 +74,20 @@ function statusPills() {
 function renderLobby() {
   $("lobby-title").textContent = state.title;
   $("lobby-tagline").textContent = state.tagline;
+  $("lobby-cecil").textContent = state.case.lobbyLine;
+  $("pack-link").href = `/pack?case=${encodeURIComponent(state.case.id)}`;
+  patch(
+    $("case-options"),
+    (state.cases || [])
+      .map(
+        (c) => `<button type="button" class="case-option" data-action="case" data-case="${esc(c.id)}" aria-pressed="${c.id === state.case.id}">
+          <span class="case-title">${esc(c.title)}</span>
+          <span class="case-setting">${esc(c.setting)}</span>
+          <span class="case-meta">${c.seats.min}–${c.seats.max} players · about ${c.minutes} minutes</span>
+        </button>`,
+      )
+      .join(""),
+  );
   $("qr").src = `/qr/${state.code}.svg`;
   $("join-url").textContent = state.joinUrl.replace(/\?room=.*$/, "");
   $("room-code").textContent = state.code;
@@ -100,8 +122,9 @@ function renderLobby() {
 const ENVELOPE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>`;
 
 function renderStage() {
-  $("phase-name").textContent = PHASE_NAMES[state.phase] || "";
+  $("phase-name").textContent = phaseName(state);
   $("stage-title").textContent = state.title;
+  $("whisper-note").textContent = state.case.labels.whisperNote;
   $("paused").hidden = !state.timer.paused;
   $("pause-btn").textContent = state.timer.paused ? "Resume" : "Pause";
   $("voice-btn").textContent = soundOn ? "Voice on" : "Voice off";
@@ -151,7 +174,7 @@ function renderStage() {
             <span class="kind">${esc(e.kind)}</span><h3>${esc(e.title)}</h3><p>${esc(e.text)}</p></article>`,
         )
         .join("")
-    : `<article class="exhibit empty"><p>Nothing yet. Cecil will lay out the evidence when Act One begins.</p></article>`;
+    : `<article class="exhibit empty"><p>${esc(state.case.labels.evidenceEmpty)}</p></article>`;
   patch($("evidence"), evidence);
 
   renderFeed();
@@ -198,7 +221,9 @@ function renderReveal() {
       .map((s) => `<li><span>${esc(name(s.seatId))}<small>${esc(s.lines.map(([l, p]) => `${l} (+${p})`).join(" · ") || "No points tonight")}</small></span><b>${s.points}</b></li>`)
       .join(""),
   );
-  patch($("lies"), r.lies.map((l) => `<li class="${l.seatId === r.killerSeatId ? "killer" : ""}"><b>${esc(name(l.seatId))}.</b> ${esc(l.text)}</li>`).join(""));
+  const role = (id) => (id === r.killerSeatId ? "killer" : id === r.decoySeatId ? "decoy" : "");
+  const tag = (id) => (id === r.decoySeatId && r.twist ? ` <small class="tag">${esc(r.twist.tag)}</small>` : "");
+  patch($("lies"), r.lies.map((l) => `<li class="${role(l.seatId)}"><b>${esc(name(l.seatId))}.</b>${tag(l.seatId)} ${esc(l.text)}</li>`).join(""));
   patch($("mischief"), (r.mischief.length ? r.mischief : ["Cecil behaved himself. Mostly."]).map((m) => `<li>${esc(m)}</li>`).join(""));
 }
 
@@ -252,8 +277,8 @@ function showLine(item, instant = false) {
   const target = state.phase === "reveal" ? $("reveal-line") : $("line");
   const isCecil = item.speaker === "cecil";
   $("speaker-name").textContent = isCecil ? "Cecil" : item.speakerName;
-  $("speaker-sub").textContent = isCecil ? "your host" : "an AI guest, speaking";
-  $("speaker-mark").textContent = isCecil ? "C" : item.speakerName.replace(/^(Lady|Dr|Miss|Captain|Sir)\s+/, "").charAt(0);
+  $("speaker-sub").textContent = isCecil ? state.case?.host.sub || "your host" : "an AI guest, speaking";
+  $("speaker-mark").textContent = isCecil ? "C" : item.speakerName.replace(/^(Lady|Dr|Miss|Mrs|Mr|Captain|Sir)\s+/, "").charAt(0);
   $("speaker-mark").parentElement.classList.toggle("guest", !isCecil);
   if (instant) {
     target.innerHTML = lines(item.text);
@@ -367,6 +392,10 @@ document.addEventListener("click", async (event) => {
   const action = button.dataset.action;
   const seatId = button.dataset.seat;
   const actions = {
+    case: () => {
+      prefs.set({ ...prefs.get(), caseId: button.dataset.case });
+      return call(socket, "host:case", { caseId: button.dataset.case });
+    },
     "add-guest": () => call(socket, "host:addGuest"),
     "remove-seat": () => call(socket, "host:removeSeat", { seatId }),
     start: () => call(socket, "host:start"),
@@ -376,7 +405,7 @@ document.addEventListener("click", async (event) => {
     takeover: () => call(socket, "host:takeover", { seatId }),
     voice: () => {
       soundOn = !soundOn;
-      prefs.set({ soundOn });
+      prefs.set({ ...prefs.get(), soundOn });
       if (!soundOn && window.speechSynthesis) speechSynthesis.cancel();
       render();
       return { ok: true };

@@ -1,5 +1,5 @@
 // The phone: join, private dossier, Cecil's whispers, clues, actions and the vote.
-import { call, clock, Countdown, esc, lines, patch, PHASE_NAMES, storage } from "/shared.js";
+import { call, clock, Countdown, esc, lines, patch, phaseName, storage } from "/shared.js";
 
 const $ = (id) => document.getElementById(id);
 const socket = io();
@@ -73,6 +73,11 @@ $("leave").addEventListener("click", async () => {
 
 socket.on("state", (next) => {
   state = next;
+  if (state.case && document.body.dataset.theme !== state.case.theme) {
+    document.body.dataset.theme = state.case.theme;
+    const bg = getComputedStyle(document.body).getPropertyValue("--bg").trim();
+    if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bg);
+  }
   if (state.phase !== lastPhase) {
     tab = defaultTab(state.phase);
     lastPhase = state.phase;
@@ -109,7 +114,7 @@ function render() {
   countdown.set(state.timer);
   const c = state.character;
   $("me").textContent = c ? c.short : state.you.name;
-  $("phase-label").textContent = `${PHASE_NAMES[state.phase] || ""}${state.timer.paused ? " · paused" : ""}`;
+  $("phase-label").textContent = `${phaseName(state)}${state.timer.paused ? " · paused" : ""}`;
 
   renderTabs();
   renderDossier();
@@ -153,7 +158,8 @@ function renderDossier() {
   const c = state.character;
   if (!c) return;
   const d = c.dossier;
-  $("murderer-banner").hidden = !c.murderer;
+  $("murderer-banner").hidden = !c.guilty;
+  $("murderer-banner").textContent = c.banner || "";
   patch(
     $("dossier"),
     `<article class="card dossier-card">
@@ -162,7 +168,7 @@ function renderDossier() {
       <p class="bio">${esc(c.bio)}</p>
       <p>${esc(d.who)}</p>
       <h3>Your story</h3><p>${esc(d.story)}</p>
-      <h3>${c.murderer ? "What really happened" : "What you're hiding"}</h3><p class="secret">${esc(d.secret)}</p>
+      <h3>${c.guilty ? "What really happened" : "What you're hiding"}</h3><p class="secret">${esc(d.secret)}</p>
       <h3>What you know</h3><ul>${d.knows.map((k) => `<li>${esc(k)}</li>`).join("")}</ul>
       <h3>How to play it</h3><p>${esc(d.howToPlay)}</p>
     </article>`,
@@ -182,14 +188,14 @@ function renderWhispers() {
   );
 }
 
-const SOURCE = { search: "You found this", cecil: "Slipped to you by Cecil", envelope: "Envelope Two", dictaphone: "The dictaphone" };
-
 function renderClues() {
+  const L = state.case.labels;
+  const SOURCE = { search: "You found this", cecil: "Slipped to you by Cecil", envelope: L.envelope.name, dictaphone: L.lock.source };
   patch(
     $("clues"),
     state.clues.length
       ? state.clues.map((c) => `<article class="clue"><span class="src">${esc(SOURCE[c.source] || "")}</span><h3>${esc(c.title)}</h3><p>${lines(c.text)}</p></article>`).join("")
-      : `<p class="muted">You haven't found anything yet. Search a room from the Act tab.</p>`,
+      : `<p class="muted">${esc(L.search.empty)}</p>`,
   );
   patch(
     $("public-evidence"),
@@ -201,6 +207,7 @@ function renderClues() {
 
 function renderActions() {
   const a = state.actions;
+  const L = state.case.labels;
   const inAct = state.phase === "act1" || state.phase === "act2";
 
   // Cecil's secret task.
@@ -219,18 +226,19 @@ function renderActions() {
     patch($("mission"), m && m.status !== "expired" ? `<p class="banner brass">Cecil's task: ${m.status === "success" ? "done. Nicely handled." : "not this time."}</p>` : "");
   }
 
-  // Envelope Two.
+  // Envelope Two, or whatever this case calls it.
   const env = a.envelope;
+  const E = L.envelope;
   if (env.assigned && !env.opened) {
     patch(
       $("envelope"),
-      `<article class="card action envelope-card"><h2>Envelope Two</h2>
-        <p>${env.physical ? "Open the real Envelope Two from the evidence pack, then tap below." : "Cecil has asked you to open Envelope Two."} The front goes on the big screen. The back is for your eyes only.</p>
-        <button class="btn primary wide" data-act="envelope">Open Envelope Two</button></article>`,
+      `<article class="card action envelope-card"><h2>${esc(E.name)}</h2>
+        <p>${esc(env.physical ? E.physical : E.asked)} ${esc(E.privacy)}</p>
+        <button class="btn primary wide" data-act="envelope">${esc(E.open)}</button></article>`,
     );
   } else if (env.assigned && env.opened) {
     const clue = state.clues.find((c) => c.id === "envelope2");
-    patch($("envelope"), clue ? `<article class="clue"><span class="src">Envelope Two · only you can see the back</span><h3>${esc(clue.title)}</h3><p>${lines(clue.text)}</p></article>` : "");
+    patch($("envelope"), clue ? `<article class="clue"><span class="src">${esc(E.source)}</span><h3>${esc(clue.title)}</h3><p>${lines(clue.text)}</p></article>` : "");
   } else {
     patch($("envelope"), "");
   }
@@ -238,15 +246,20 @@ function renderActions() {
   // Searching.
   const s = a.search;
   const usedName = s.used && s.rooms.find((r) => r.id === s.used)?.name;
+  $("search-title").textContent = L.search.title;
   $("search-note").textContent = !inAct
-    ? "You can search when an act is under way."
+    ? L.search.later
     : s.used
-      ? `You searched ${usedName} this act. You can search again next act.`
-      : "One room per act. Only you will see what you find.";
+      ? `You searched ${usedName} this act. ${L.search.again}`
+      : L.search.note;
   patch(
     $("rooms"),
     s.rooms
-      .map((r) => `<button class="choice ${s.used === r.id ? "done" : ""}" data-act="search" data-room="${esc(r.id)}" ${s.available ? "" : "disabled"}>${esc(r.name)}${s.used === r.id ? "<small>searched</small>" : ""}</button>`)
+      .map((r) => {
+        const note = s.used === r.id ? "<small>searched</small>" : r.open ? "" : `<small>${esc(r.note)}</small>`;
+        const enabled = s.available && r.open !== false;
+        return `<button class="choice ${s.used === r.id ? "done" : ""}" data-act="search" data-room="${esc(r.id)}" ${enabled ? "" : "disabled"}>${esc(r.name)}${note}</button>`;
+      })
       .join(""),
   );
 
@@ -292,20 +305,22 @@ function renderActions() {
     $("guest-form").querySelector("button").disabled = !g.available || g.pending;
   }
 
-  // The desk drawer.
+  // The locked drawer, case or box, and what's inside.
   const d = a.dictaphone;
+  const K = L.lock;
   $("drawer-card").hidden = false;
-  $("drawer-note").textContent = d.heard
-    ? "You've heard Sir Edmund's last recording. It's in your clues."
-    : d.available
-      ? "A brass dial with three digits. Sir Edmund was a private man."
-      : "Out of reach until Act Two.";
+  $("drawer-title").textContent = K.title;
+  $("drawer-button").textContent = K.button;
+  $("drawer-input").maxLength = K.digits;
+  $("drawer-input").setAttribute("aria-label", K.aria);
+  $("drawer-note").textContent = d.heard ? K.heard : d.available ? K.ready : K.closed;
   $("drawer-form").hidden = d.heard;
   $("drawer-form").querySelector("button").disabled = !d.available;
 }
 
 function renderAccuse() {
   const v = state.actions.vote;
+  $("accuse-title").textContent = state.case.labels.accuse;
   patch(
     $("candidates"),
     v.candidates
@@ -321,12 +336,18 @@ function renderReveal() {
   const mine = r.scores.find((s) => s.seatId === state.you.id);
   const killer = state.lineup.find((s) => s.id === r.killerSeatId);
   const youAreKiller = r.killerSeatId === state.you.id;
-  const headline = youAreKiller ? (r.caught ? "They caught you." : "You got away with it.") : r.caught ? "The murderer was caught." : "The murderer escaped.";
+  const youAreDecoy = r.decoySeatId === state.you.id && r.twist;
+  const headline = youAreKiller
+    ? r.caught ? "They caught you." : "You got away with it."
+    : youAreDecoy
+      ? r.twist.headline
+      : r.caught ? "The murderer was caught." : "The murderer escaped.";
   patch(
     $("reveal"),
-    `<article class="card reveal-card">
+    `<article class="card reveal-card ${youAreDecoy ? "twist" : ""}">
       <p class="eyebrow">The reveal</p>
       <p class="big">${esc(headline)}</p>
+      ${youAreDecoy ? `<p class="twist-detail">${esc(r.twist.detail)}</p>` : ""}
       <p class="muted">The murderer was ${esc(killer?.character?.name || "")}${killer?.kind === "human" ? ` (${esc(killer.name)})` : ""}.</p>
       <p class="points">${mine ? mine.points : 0}</p>
       <p class="muted">points</p>
@@ -437,7 +458,7 @@ document.addEventListener("click", async (event) => {
   } else if (kind === "guest-ask") {
     await act("player:guestPreset", { guestSeatId: selectedGuest, index: el.dataset.index }, "Asked. Watch the big screen.");
   } else if (kind === "envelope") {
-    await act("player:envelope", {}, "The photograph is on the big screen. Check the back.");
+    await act("player:envelope", {}, state.case.labels.envelope.toast);
   } else if (kind === "mission-yes" || kind === "mission-no") {
     await act("player:mission", { success: kind === "mission-yes" }, kind === "mission-yes" ? "Cecil is impressed." : "Better luck next time.");
   } else if (kind === "vote") {
@@ -476,7 +497,7 @@ $("drawer-form").addEventListener("submit", async (event) => {
     $("drawer-error").textContent = "";
     $("drawer-input").value = "";
     tab = "clues";
-    toast("The drawer opens. The dictaphone recording is in your clues.");
+    toast(state.case.labels.lock.opened);
   }
   if (state) render();
 });

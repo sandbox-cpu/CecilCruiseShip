@@ -133,3 +133,33 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------- the Halcyon */
+/* Dead Reckoning: night at sea. Deep navy, ship's brass, signal red, sea green. */
+
+body[data-theme="halcyon"] {
+  --bg: #07121c;
+  --bg-2: #0b1a27;
+  --panel: #0f2233;
+  --panel-2: #142b3f;
+  --line: #24425c;
+  --ink: #eef2f0;
+  --muted: #9db2bd;
+  --faint: #5f7683;
+  --brass: #c9a55b;
+  --brass-2: #e7cb86;
+  --blood: #b23a36;
+  --blood-2: #e0584c;
+  --moss: #3fa28b;
+  --paper: #f3eee1;
+  --paper-ink: #17222c;
+  background:
+    radial-gradient(ellipse at 15% -10%, rgba(231, 203, 134, 0.09), transparent 55%),
+    radial-gradient(ellipse at 110% 115%, rgba(63, 162, 139, 0.12), transparent 50%),
+    repeating-linear-gradient(172deg, rgba(157, 178, 189, 0.025) 0 2px, transparent 2px 22px),
+    var(--bg);
+}
+
+body[data-theme="halcyon"] .monogram {
+  box-shadow: inset 0 0 0 5px var(--bg), inset 0 0 0 6px rgba(201, 165, 91, 0.45);
+}

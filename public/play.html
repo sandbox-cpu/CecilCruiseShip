@@ -49,7 +49,7 @@
     <main class="tabs-body">
       <!-- Dossier -->
       <section class="tab" id="tab-dossier" hidden>
-        <div id="murderer-banner" class="banner blood" hidden>You are the murderer. Nobody else knows. Keep it that way.</div>
+        <div id="murderer-banner" class="banner blood" hidden></div>
         <div id="dossier"></div>
         <button class="btn primary wide" id="ready-btn" hidden>I've read my dossier</button>
         <p class="muted center-text" id="ready-note" hidden>Waiting for everyone else to finish reading…</p>
@@ -75,7 +75,7 @@
         <div id="envelope"></div>
 
         <article class="card action" id="search-card">
-          <h2>Search a room</h2>
+          <h2 id="search-title">Search a room</h2>
           <p class="muted" id="search-note"></p>
           <div class="grid-buttons" id="rooms"></div>
         </article>
@@ -103,11 +103,11 @@
         </article>
 
         <article class="card action" id="drawer-card">
-          <h2>Sir Edmund's desk drawer</h2>
+          <h2 id="drawer-title">Sir Edmund's desk drawer</h2>
           <p class="muted" id="drawer-note"></p>
           <form class="dial" id="drawer-form">
             <input id="drawer-input" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="· · ·" aria-label="Three-digit combination">
-            <button class="btn primary" type="submit">Try the drawer</button>
+            <button class="btn primary" type="submit" id="drawer-button">Try the drawer</button>
           </form>
           <p class="error" id="drawer-error" role="alert"></p>
         </article>
@@ -115,7 +115,7 @@
 
       <!-- Accusation -->
       <section class="tab" id="tab-accuse" hidden>
-        <h2 class="section-title">Who poisoned Sir Edmund?</h2>
+        <h2 class="section-title" id="accuse-title">Who poisoned Sir Edmund?</h2>
         <p class="muted" id="vote-note">Your vote is private. You can change it until the reveal.</p>
         <div class="grid-buttons tall" id="candidates"></div>
       </section>

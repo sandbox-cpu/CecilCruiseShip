@@ -20,6 +20,10 @@
           <p class="tagline" id="lobby-tagline"></p>
           <p class="cecil-says" id="lobby-cecil">Good evening. I'm Cecil. I'll be looking after you tonight. Do scan the card, find a seat, and try not to touch anything.</p>
           <div class="status-row" id="lobby-status"></div>
+          <div class="case-picker" id="case-picker" role="group" aria-labelledby="case-picker-label">
+            <p class="eyebrow" id="case-picker-label">Tonight's mystery</p>
+            <div class="case-options" id="case-options"></div>
+          </div>
         </div>
         <div class="lobby-join card">
           <img id="qr" alt="QR code to join the game" width="260" height="260">
@@ -34,7 +38,7 @@
           <p class="hint" id="seat-hint"></p>
           <div class="lobby-actions">
             <button class="btn" data-action="add-guest" id="add-guest">+ Seat an AI guest</button>
-            <label class="check"><input type="checkbox" id="physical"> We've printed the <a href="/pack" target="_blank" rel="noopener">evidence pack</a></label>
+            <label class="check"><input type="checkbox" id="physical"> We've printed the <a href="/pack" id="pack-link" target="_blank" rel="noopener">evidence pack</a></label>
             <button class="btn primary big" data-action="start" id="start">Begin the evening</button>
             <p class="error" id="lobby-error" role="alert"></p>
           </div>
@@ -73,7 +77,7 @@
         <aside class="table card">
           <h2>At the table</h2>
           <ul class="lineup" id="lineup"></ul>
-          <p class="whisper-note">A glowing envelope means Cecil has just whispered to someone. Only they know what he said.</p>
+          <p class="whisper-note" id="whisper-note">A glowing envelope means Cecil has just whispered to someone. Only they know what he said.</p>
         </aside>
 
         <section class="evidence">
