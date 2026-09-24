@@ -1,8 +1,8 @@
-# Cecil: A Nightcap at Ravensmere · coming-soon page
+# Cecil: Dead Reckoning · coming-soon page
 
-The landing page and early-access waitlist for [Cecil](https://github.com/sandbox-cpu/cecil-mystery), the AI-hosted murder mystery. It's a separate project from the game: nothing here touches the game's code or its solution.
+The landing page and early-access waitlist for **Dead Reckoning**, Cecil's second case: a murder aboard the SS Halcyon. It lives in the game's repository (`landing/`) but is a separate project: nothing here touches the game's code or its solution, and the page gives nothing away that every player doesn't learn in the prologue and first act.
 
-- **The page** (`public/`): plain HTML, CSS and JavaScript with no build step. It opens on the house at night. Below that come the trailer (a silent loop, with its soundtrack when opened), Cecil himself, the night of the murder, the "two screens" explanation of how the game plays, Cecil's mischief, the four suspects' faces, a FAQ and the waitlist form. It works on phones and desktops, respects reduced-motion settings, and the form still works with JavaScript switched off.
+- **The page** (`public/`): plain HTML, CSS and JavaScript with no build step. It opens on the Halcyon at night. Below that come the trailer (a silent loop, with its soundtrack when opened), Cecil as Chief Purser, the night of the man overboard, the "two screens" explanation of how the game plays, Cecil's mischief, the four passengers' faces, a FAQ and the waitlist form. It works on phones and desktops, respects reduced-motion settings, and the form still works with JavaScript switched off.
 - **The waitlist** (`server/`): a small Node server. Each sign-up is saved as a row in a SQLite file, and a password-protected admin page lets you view, export and remove sign-ups.
 - **The trailer** (`trailer/`): a [Remotion](https://www.remotion.dev) project that renders the trailer, a reduced-motion cut and the still images into `public/media/`.
 
@@ -11,6 +11,7 @@ The landing page and early-access waitlist for [Cecil](https://github.com/sandbo
 You need [Node.js](https://nodejs.org) 22.13 or newer (it uses Node's built-in SQLite).
 
 ```bash
+cd landing
 npm install
 cp .env.example .env        # then set ADMIN_TOKEN to a long random password
 npm start
@@ -31,7 +32,7 @@ npm run build:static
 
 Then log in at [app.netlify.com/drop](https://app.netlify.com/drop) and drag the new `dist` folder onto the page. To update it later, rebuild and drag the folder onto your site's **Deploys** tab.
 
-**Netlify, connected to GitHub:** choose Add new site → Import an existing project → GitHub → CecilLanding. `netlify.toml` already holds the build settings, so just press Deploy. Netlify rebuilds on every push and fills in the site's address for link previews.
+**Netlify, connected to GitHub:** choose Add new site → Import an existing project → GitHub → CecilCruiseShip, and set **Base directory** to `landing`. `landing/netlify.toml` already holds the build settings, so just press Deploy. Netlify rebuilds on every push and fills in the site's address for link previews.
 
 When you're ready to take real sign-ups, the waitlist needs a host that keeps its database (see [Publish it](#publish-it)), or a Netlify Function with Netlify Blobs in place of the SQLite file.
 
@@ -64,7 +65,7 @@ CSV exports open cleanly in Excel, Google Sheets and Numbers, and import into Ma
 
 - **Checks as you go.** The same rules run in the browser and on the server (`public/js/email.js`): a missing `@`, a missing ending such as `.com`, doubled dots, characters email doesn't allow, and so on. Each problem gets a plain-English message.
 - **Catches likely typos.** Mistakes such as `gmial.com` or `hotmail.con` get a one-click "Did you mean…?". Pressing submit again sends the address as typed.
-- **Confirms clearly.** On success the form is replaced by Cecil's reply ("Very good, Sam. You're on the list.") and focus moves to it for screen readers. Signing up twice says "You're already on the list" instead of adding a duplicate. There's also a button to share the page with friends.
+- **Confirms clearly.** On success the form is replaced by Cecil's reply ("Very good, Sam. You're on the passenger list.") and focus moves to it for screen readers. Signing up twice says "You're already on the passenger list" instead of adding a duplicate. There's also a button to share the page with friends.
 - **Blocks spam.** A hidden field catches bots, and each IP address is limited to 8 attempts per 10 minutes.
 - **Works without JavaScript.** The form posts normally and gets a confirmation page back.
 
@@ -76,8 +77,8 @@ The site is one small Node process plus one file on disk, so it needs a host tha
 
 Hosts that fit, from simplest:
 
-- **Render:** a Web Service from this repo (build `npm install`, start `npm start`) with a persistent disk mounted at `/var/data`.
-- **Railway** or **Fly.io:** deploy the included `Dockerfile` and attach a volume at `/data`.
+- **Render:** a Web Service from this repo with **Root directory** `landing` (build `npm install`, start `npm start`) and a persistent disk mounted at `/var/data`.
+- **Railway** or **Fly.io:** deploy `landing/Dockerfile` (with `landing` as the build context) and attach a volume at `/data`.
 - **Any VPS:** `npm install && npm start` behind Caddy or nginx for HTTPS, with a process manager such as systemd or pm2.
 
 Set these environment variables on the host:
@@ -101,22 +102,23 @@ The host usually provides `PORT`; the server picks it up automatically.
 
 ## The trailer
 
-The trailer runs 38 seconds and fades from black to black, so it loops without a seam. Its eight scenes:
+The trailer runs about 42 seconds and fades from black to black, so it loops without a seam. Its nine scenes:
 
-1. Cecil's monogram, and *Ravensmere Hall · Yorkshire · November 1978*.
-2. The camera drifts towards the house on the moor, one window lit: *Sir Edmund rang for his port at eleven.*
-3. Cecil walks the hall with the tray, on the beat of his own footsteps.
-4. The tray of port outside the study door, where a clock runs from 11.05 to 11.20: *By midnight he was dead.*
-5. The shared screen and three private phones: *One screen tells the story. Every phone tells a different one.*
-6. The suspects, one face on each drum hit: Lady Vivienne, Dr Hale, Miss Fenn and Captain Lyle, then all four together: *Everyone has something to hide.*
-7. Three of Cecil's whispers arriving. From scene 5 on, a small, faint clock fades in and out in the corner: 11.30, 11.38, 11.45, 11.52, 11.59.
-8. The title card, landing at midnight. Cecil speaks for the first time: *"Good evening. I am Cecil, and I shall be your host tonight."* Then, as *Coming soon* appears: *"Do find a seat, and try not to touch anything."*
+1. Cecil's monogram, and *SS Halcyon · Mid-Atlantic · October 1961*.
+2. The camera pushes in on the Halcyon steaming through the swell at night: *Three nights out. Four days from the nearest port.*
+3. Cecil walks the corridor with a telegram on a salver, on the beat of his own footsteps: *Chief Purser of the SS Halcyon these twenty-two years.*
+4. The Boat Deck in the rain, and a ship's clock that runs from 1.05 to two, strikes, spins back an hour and runs on again: *At two o'clock the clocks went back an hour.* On the second twenty past one, the ship's whistle: *At twenty past one, Mortimer Crane went over the side.*
+5. A lifebuoy light on black water: *The Halcyon searched until dawn. The sea did not give him back.*
+6. The shared screen and three private phones: *One screen tells the story. Every phone tells a different one.*
+7. The passengers, one face on each drum hit: Miss Kingsley, Mr Quill, Miss Ashdown and Mr Pryce, then all four together: *Everyone has something to hide.*
+8. Three of Cecil's whispers arriving. From scene 6 on, a small, faint clock fades in and out in the corner as the night runs on: 1.30, 2.30, 3.30, 4.30, 5.30.
+9. The title card. Cecil speaks for the first time: *"Good evening. I am Cecil, Chief Purser of the Halcyon, and I shall be your host this evening."* Then, as *Coming soon* appears: *"Do find your seat, and keep your hands inside the rail."*
 
-Every line in it comes from the game's own script or README. It gives nothing away that the game's prologue and first act don't show every player.
+Every line in it comes from the game's own script, its public evidence or its cast list. It gives nothing away that the game's prologue and first act don't show every player.
 
-**The soundtrack** tells the story before anyone speaks. Measured footsteps come down the hall and stop outside the study door. A tray is set down with a faint clink of glass. The clock ticks while its hands run from 11.05 to 11.20, then the chime lands on *By midnight he was dead*, and the ticking stops with it. Under all this runs a quiet, uneasy score: a low drone, a slow minor-key string pad, and a music box that never resolves. When the screens appear the music turns dramatic: driving low strings at 120 bpm, a timpani hit under each suspect's face, a high line creeping up by half-steps, phones buzzing as Cecil whispers and the corner clock ticking on the beat. A rise and a beat of silence lead into the hit and the bell's second stroke of midnight on the title. Only then does anyone speak: Cecil's two lines, in his ElevenLabs voice, with the music ducking about 13 dB beneath him. Under the last line, the music box plays its opening notes again and finally resolves.
+**The soundtrack** tells the story before anyone speaks. The sea and the ship's engines run under everything. Rain sweeps the deck as we see the ship; measured footsteps come down the corridor and stop at the Purser's counter, where a brass bell rings once. Then a clock ticks faster and faster to two, strikes twice, and the hour runs backwards with a sucked-in rush; the ticking comes back, slower, until the ship's whistle sounds and something goes into the sea. Under all this runs the quiet, uneasy score from Cecil's first case: a low drone, a slow minor-key string pad and a music box that never resolves. When the screens appear the music turns dramatic: driving low strings at 120 bpm, a timpani hit under each face, a high line creeping up by half-steps, phones buzzing as Cecil whispers and the corner clock ticking on the beat. A rise and a beat of silence lead into the hit and two strokes of the ship's bell on the title. Only then does anyone speak: Cecil's two lines, with the music ducking about 13 dB beneath him. Under the last line, the music box plays its opening notes again and finally resolves.
 
-The soundtrack is synthesised in code (`trailer/make-sound.mjs`, with a small toolkit in `trailer/sound/dsp.mjs`), not recorded, so it re-renders along with the picture. Cecil's lines are the only recordings: `trailer/voice/cecil-host.wav` and `cecil-seat.wav`, decoded from the ElevenLabs MP3s at 48 kHz. To swap a line, replace the file and update its `at` and `speech` times in `timing.js`. Every cue, from each footstep to the hit, is a frame number in `trailer/src/timing.js`, which the scenes use too, so sound and picture can't drift apart.
+The soundtrack is synthesised in code (`trailer/make-sound.mjs`, with a small toolkit in `trailer/sound/dsp.mjs`), not recorded, so it re-renders along with the picture. Cecil's lines are the only recordings: `trailer/voice/cecil-host.wav` and `cecil-seat.wav`. To swap a line, replace the file and update its `at` and `speech` times in `timing.js`. Every cue, from each footstep to the whistle, is a frame number in `trailer/src/timing.js`, which the scenes use too, so sound and picture can't drift apart.
 
 | File | Used for |
 |---|---|
@@ -124,17 +126,17 @@ The soundtrack is synthesised in code (`trailer/make-sound.mjs`, with a small to
 | `public/media/trailer-1080.mp4` | "Watch the trailer": the full version, with sound and controls. |
 | `public/media/trailer-calm-720.mp4` (`.webm`) | The reduced-motion cut: no camera moves, flicker or shaking, just slow cross-fades. Same soundtrack. |
 | `public/media/trailer-sound.wav` | The soundtrack on its own, as the videos are built from it. The page never loads it. |
-| `public/media/still-corridor.jpg` | The hero's still image, and all a reduced-motion visitor sees until they choose to play. |
+| `public/media/still-deck.jpg` | The hero's still image (the clock on the second twenty past one), and all a reduced-motion visitor sees until they choose to play. |
 | `public/media/poster.jpg` | The poster for the full trailer. |
 | `public/media/social-card.jpg` | The preview image when the link is shared (1200×630). |
-| `public/media/trailer-src/` | The two moving shots the trailer is cut from. Only the trailer uses them; the static build leaves them out. |
+| `public/media/trailer-src/` | The moving shots the trailer is cut from. Only the trailer uses them; the static build leaves them out. A scene whose clip is missing falls back to a slow push on its photograph. |
 
 **How the page uses them:** the hero loop is always muted; sound plays only when someone opens the trailer. The loop plays only while it's on screen and can be paused. It doesn't autoplay for anyone who has asked their device to reduce motion, or who has Data Saver on; they get the still and a button to watch.
 
 **To change and re-render it:**
 
 ```bash
-cd trailer
+cd landing/trailer
 npm install
 npm run studio        # live preview in the browser
 npm run sound         # just the soundtrack (a few seconds), with a level report per section
@@ -145,19 +147,19 @@ The scenes are in `trailer/src/scenes.jsx`, the corner clock in `trailer/src/Clo
 
 ## The pictures
 
-The house, the rooms, Cecil and the four suspects were made with [Higgsfield](https://higgsfield.ai) to match the game's setting: an English country house on the Yorkshire moors in November 1978, lit like a film of the period. None of them is a real person. They're in `public/media/photos/`, brightened and cropped for the web, and the page and the trailer share them.
+The ship, its rooms, Cecil and the four passengers were made with [Higgsfield](https://higgsfield.ai) to match the game's setting: a British ocean liner on an autumn cruise to the Caribbean in 1961, lit like a film of the period. None of them is a real person. They're in `public/media/photos/`, and the page and the trailer share them.
 
 | File | What it shows | Model |
 |---|---|---|
-| `house.jpg` | Ravensmere Hall at night, one window lit (the hero, the trailer's title) | Soul Cinema |
-| `cecil.jpg`, `cecil-portrait.jpg` | Cecil with his tray (the host card) | Soul Cinema |
-| `corridor.jpg` | The tray of port outside the study door | Soul Cinema |
-| `study.jpg` | Sir Edmund's desk, the diary and the locked drawer | Soul Cinema |
-| `envelope.jpg` | Envelope Two, sealed | GPT Image 2.5 |
-| `vivienne.jpg`, `hale.jpg`, `fenn.jpg`, `lyle.jpg` | The four suspects | Soul Cinema |
-| `entrance.jpg`, `dining.jpg` | The hall and the dining room (section backgrounds) | Soul Cinema |
+| `ship.jpg` | The SS Halcyon at night on the Atlantic (the hero, the trailer's title) | Soul Cinema |
+| `cecil.jpg`, `cecil-portrait.jpg` | Cecil as Chief Purser, with a telegram (the host card, the trailer) | GPT Image 2.5, from Cecil's Ravensmere portrait |
+| `boat-deck.jpg` | No. 7 lifeboat on the Boat Deck in the rain | Soul Cinema |
+| `lifebuoy.jpg` | A lifebuoy light on black water | Soul Cinema |
+| `cabin.jpg` | Cabin A128 and the locked attaché case | Soul Cinema |
+| `ballroom.jpg`, `smoking.jpg` | The ballroom and the Smoking Room (section backgrounds) | Soul Cinema |
+| `kingsley.jpg`, `quill.jpg`, `ashdown.jpg`, `pryce.jpg` | The four passengers | Soul Cinema |
 
-The trailer's two moving shots, `public/media/trailer-src/house-push.mp4` (towards the house) and `cecil-walk.mp4` (Cecil down the hall), were animated from the house and Cecil stills with Kling 3.0. They're silent; the trailer's soundtrack supplies the footsteps. Check that your Higgsfield plan allows commercial use before you use any of these in paid advertising.
+The trailer's moving shots in `public/media/trailer-src/` were animated from those stills with Kling 3.0. They're silent; the trailer's soundtrack supplies the sound. Cecil's two spoken lines were generated with Seed Audio, using his lines from the Ravensmere trailer as the voice reference, so he sounds like the same Cecil. Check that your Higgsfield plan allows commercial use before you use any of these in paid advertising.
 
 To swap a picture, keep the file name and roughly the same framing, then re-render the trailer if it appears there. The static build fingerprints every file in `public/media/`, so a new version is picked up straight away.
 
@@ -172,9 +174,9 @@ The browser test fills in the form end to end: it triggers errors, uses the typo
 
 ## What the page says, and doesn't
 
-The page sells the parts of the game that are real today: 3–4 players in the same room, about 15 minutes, one shared screen plus private phones, AI guests in empty chairs, Cecil's whispers and mischief, and an optional printed evidence pack. It doesn't promise online play, more mysteries or replayability. The FAQ says plainly that the mystery has a single solution.
+The page sells the parts of the game that are real today: 3–4 players in the same room, about 15 minutes, one shared screen plus private phones, AI guests in empty chairs, Cecil's whispers and mischief, and an optional printed evidence pack. It doesn't promise online play or replayability. The FAQ says plainly that the mystery has a single solution.
 
-It never reveals the solution. It shows only what every player learns in the prologue and the first act, plus the cast list from the printable pack. The mock phone that reads "You are the murderer" has no character name on it, and none of the example whispers point at the culprit.
+It never reveals the solution. It shows only what every player learns in the prologue and the first act (Cecil's account of the night, the clocks going back, the man overboard at No. 7 lifeboat, the locked attaché case), plus the cast list from the printable pack. The mock phone that reads "You killed him" has no character name on it, and none of the example whispers point at anyone in particular.
 
 ## Project layout
 
@@ -190,8 +192,8 @@ public/
   js/email.js     email checks, shared by the browser and the server
   js/admin.js     the admin page's Remove button
   media/          the trailer and its stills
-  media/photos/   the house, the rooms, Cecil and the suspects
-  media/trailer-src/  the trailer's two moving shots (not deployed)
+  media/photos/   the ship, its rooms, Cecil and the passengers
+  media/trailer-src/  the trailer's moving shots (not deployed)
   fonts/          Cormorant Garamond and EB Garamond, self-hosted
 scripts/export.js npm run export
 scripts/build-static.js  npm run build:static: the static preview in dist/
