@@ -281,7 +281,7 @@ a { color: var(--brass-2); text-underline-offset: 3px; }
 }
 .film-open {
   position: absolute; inset: 10px; border: 0; padding: 0; background: transparent; cursor: pointer;
-  display: grid; place-items: end start;
+  display: grid; place-items: end end; /* bottom right: the telegram tape runs along the bottom left */
 }
 .film-open-icon {
   margin: 16px; height: 42px; padding: 0 16px 0 14px; border-radius: 999px;
