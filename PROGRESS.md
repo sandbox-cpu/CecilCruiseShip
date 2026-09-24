@@ -1,42 +1,28 @@
-# Build progress: Cecil murder-mystery demo
+# Build progress: Cecil, second case
 
-This file lets a new session pick up the build exactly where the last one stopped. Tick each item as it's committed.
+This file lets a new session pick up the build where the last one stopped.
 
-Repo: `sandbox-cpu/cecil-mystery` (branch `main`). It was built on `cshatherley/lightstream` (branch `claude/murder-mystery-demo`, folder `cecil/`) and moved here with its history.
+Repo: `sandbox-cpu/CecilCruiseShip`, branch `claude/cecil-cruise-mystery-6kjt7d`. The game framework and A Nightcap at Ravensmere came unchanged from `sandbox-cpu/cecil-mystery@914a9d0` (first commit); the landing page started from `sandbox-cpu/CecilLanding`.
 
 ## Brief (from the user)
 
-- Asymmetric murder mystery. The AI butler **Cecil** is the host.
-- The laptop is the shared screen. Each player joins privately on their phone (QR code plus room code).
-- Cecil knows everything about every player. The engine decides what he may reveal, to whom and when.
-- Cecil DMs individual players to cause havoc. He can send an extra clue, trick someone, or be sneaky.
-- 3–4 seats, about 15 minutes. AI guests fill empty seats when only 1–2 humans join.
-- Hybrid AI: the story beats and solution are scripted, Claude adds live lines and choices, and the game falls back to scripted lines when there's no API key.
-- ElevenLabs voice for Cecil (optional, `ELEVENLABS_API_KEY`), with the browser's built-in voice as fallback.
-- Printable evidence pack (the physical/digital layer): an envelope holds a code that unlocks the dictaphone.
-
-## Architecture
-
-- Node 20+ (ESM), Express, Socket.IO, and `@anthropic-ai/sdk`. Plain HTML/CSS/JS frontends with no build step.
-- `server/scenario/ravensmere.js`: all authored content (characters, clues, facts, mischief content, narration).
-- `server/game.js`: deterministic game engine with an injected clock and RNG, plus views that act as the information firewall.
-- `server/ai/`: Cecil (omniscient, bounded by the engine's permission table), AI guests (who only see their own dossier), the leak guard, and the scripted fallback.
-- `server/tts.js`: ElevenLabs proxy and cache.
-- `server/index.js`: HTTP, Socket.IO, rooms, tick loop, QR/LAN URL.
-- `public/`: `host.html` (shared screen), `play.html` (phone), `pack.html` (printable evidence pack).
+- A second Cecil mystery on a luxury cruise ship, built on the Ravensmere framework, with Ravensmere kept intact and playable.
+- Cecil is the ship's Chief Purser: he oversees the passengers, knows every cabin, and has access to rather more information than he admits.
+- New title, cast and solution; the next port is far enough away that the people aboard must deal with it themselves; the ship should matter (access, crew routes, cabins, decks, schedules, sounds, communications).
+- One character has an asymmetric feel: a surprise. **The user must not be told the culprit, method, motive, twist, puzzle answers or revealing implementation details** in chat. The truth lives only in `server/scenario/halcyon.js`.
+- Same systems: shared screen and private phones, AI guests, Cecil's private interventions, accusations, voice, scripted fallbacks. Keep the user's existing configuration.
+- Verify with scripted checks only (no paid model or voice calls), and say what still needs a human playtest.
+- A landing page like CecilLanding's, with a Remotion trailer and Higgsfield visuals (48 credits available), in a cruise theme.
 
 ## Checklist
 
-- [x] Scaffold, dependencies, this file
-- [x] Scenario content
-- [x] Game engine and views (firewall), with 34 engine tests
-- [x] AI layer (Cecil, guests, guard, fallback), 18 AI tests with a fake client
-- [x] Server (rooms, sockets, reconnect, QR, voice proxy)
-- [x] Host screen UI
-- [x] Phone UI
-- [x] Printable pack
-- [x] Tests: engine, firewall, AI adapter (fake client), socket integration (58 passing)
-- [x] Browser playthrough (Playwright, 1 host + 2 phones, lobby to reveal), screenshots reviewed
-- [x] README and .env.example
-- [ ] Live Claude test with the user's key (don't commit the key)
+- [x] Import the framework and Ravensmere; all tests green as imported
+- [x] Design the case (server-only)
+- [x] Generalise the engine: case registry, lobby picker, per-case labels, theme, Cecil role, leak guard; crew-only places, timed whispers, per-case banners, reveal-only twist block
+- [x] Scenario `halcyon.js`, Halcyon theme, printable pack with deck plan
+- [x] Tests: evidence audit, scripted evenings, firewall, AI layer, sockets, browser playthroughs of both cases (97 + 2 browser)
+- [x] Higgsfield stills and Cecil's lines generated (job IDs in the session; results live on Higgsfield's CDN)
+- [ ] Download the Higgsfield results into `landing/public/media` (blocked: this environment's network policy refuses `d8j0ntlcm91z4.cloudfront.net`)
+- [ ] Kling moving shots for the trailer (after reviewing the stills)
+- [ ] Render the trailer, calm cut, poster and social card; landing tests; landing README
 - [ ] Final push
