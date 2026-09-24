@@ -1,4 +1,4 @@
-// The telegram trailer: about 63 seconds, black to black, so it loops without a seam.
+// The telegram trailer: about 65 seconds, black to black, so it loops without a seam.
 // `calm` is the reduced-motion cut: no camera moves, flashes or shaking, and the
 // montage cross-fades instead of cutting. Both carry the same soundtrack
 // (sound/telegram.mjs); the page mutes the hero loop and plays sound only when
@@ -10,18 +10,21 @@ import "../fonts.js";
 import { Scene, Vignette } from "../parts.jsx";
 import {
   Ashdown,
+  CardFriends,
+  CardMurderer,
+  CardSecrets,
   ChartClose,
   Cecil,
   Deep,
   Dinner,
   EndCard,
-  Glance,
+  Guilty,
   Kingsley,
   Phones,
+  Point,
   Quill,
   Sharks,
   Ship,
-  Stare,
   Table,
   Thesis,
   Title,
@@ -38,7 +41,11 @@ const X = 8; // cross-fade overlap, in frames
 
 const COMPONENTS = {
   table: Table,
+  cardFriends: CardFriends,
   phones: Phones,
+  cardSecrets: CardSecrets,
+  guilty: Guilty,
+  cardMurderer: CardMurderer,
   cecil: Cecil,
   ship: Ship,
   wake: Wake,
@@ -46,10 +53,8 @@ const COMPONENTS = {
   deep: Deep,
   dinner: Dinner,
   whisperKingsley: WhisperKingsley,
-  glance: Glance,
   kingsley: Kingsley,
   whisperQuill: WhisperQuill,
-  stare: Stare,
   quill: Quill,
   whisperAshdown: WhisperAshdown,
   ashdown: Ashdown,
@@ -57,6 +62,7 @@ const COMPONENTS = {
   transmit: Transmit,
   title: Title,
   sharks: Sharks,
+  point: Point,
   vote: Vote,
   endcard: EndCard,
 };
@@ -78,8 +84,9 @@ function Grade() {
   );
 }
 
-// Hard cuts where the soundtrack hits: under the ship, the Morse, the title, and the vote going to black.
-const CUT = new Set(["deep", "transmit", "title", "vote"]);
+// Hard cuts where the soundtrack hits: the cards and the phone between them, under the ship, the faces,
+// the Morse, the title, and the vote going to black.
+const CUT = new Set(["cardFriends", "phones", "cardSecrets", "guilty", "cardMurderer", "cecil", "deep", "kingsley", "quill", "ashdown", "transmit", "title", "vote"]);
 export const SCENES = Object.entries(AT).map(([id, [from, to]]) => ({ id, Component: COMPONENTS[id], from, dur: to - from }));
 
 export const TRAILER_FRAMES = END;

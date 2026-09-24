@@ -285,6 +285,7 @@ function reveal() {
 // ------------------------------------------------------------ key moments, in seconds
 
 const PHONES = T.PHONES.map(s);
+const POINT = s(T.START.point);
 const [SHIP, CHART, DEEP] = [T.SCENES.ship[0], T.SCENES.chart[0], T.SCENES.deep[0]].map(s);
 const DINNER = s(T.SCENES.dinner[0]);
 const TABLE_AGAIN = s(T.WHISPERS.kingsley.at) - 0.3; // the mischief begins
@@ -343,12 +344,20 @@ const DOWN_END = s(T.VOICE.down.at) + T.VOICE.down.speech[1];
 
 // ============================================================ one of you
 
-// Two buzzes in the dark; then the four phones, one after another, and a sting on the last.
-mix.place(phoneBuzz(), s(6), { gain: 0.22, pan: -0.3, send: 0.1 });
-mix.place(phoneBuzz(), s(18), { gain: 0.2, pan: 0.35, send: 0.1 });
-PHONES.forEach((at, i) => mix.place(phoneBuzz([[0.22, 0]]), at, { gain: 0.2, pan: -0.6 + i * 0.4, send: 0.1 }));
+// Two buzzes in the dark; three phones, one after another; the fourth, on its own, and a sting.
+T.BUZZES.forEach((f, i) => mix.place(phoneBuzz(), s(f), { gain: 0.22, pan: i ? 0.35 : -0.3, send: 0.1 }));
+PHONES.forEach((at, i) => mix.place(phoneBuzz([[0.22, 0]]), at, { gain: 0.2, pan: -0.5 + i * 0.5, send: 0.1 }));
+mix.place(phoneBuzz([[0.3, 0]]), s(T.GUILTY) - 0.02, { gain: 0.24, send: 0.1 });
+// Each card hits a little harder than the last: four friends, four secrets, one murderer.
+Object.keys(T.CARDS).forEach((card, i) => {
+  const at = s(T.START[card]);
+  mix.place(boom(0.5 + i * 0.2), at, { gain: 0.35 + i * 0.1, send: 0.3 });
+  mix.place(tom([70, 62, 55][i]), at, { gain: 0.3, send: 0.2 });
+  const [L, R] = strings([[N.D3, N.A3], [N.D3, N.F3, N.A3], [N.D2, N.D3, N.Eb3, N.A3]][i], 1.0 + i * 0.3, { attack: 0.01, release: 0.8 + i * 0.3, cutoff: 1200 + i * 300 });
+  mix.placeStereo(L, R, at, { gain: 0.3 + i * 0.08, send: 0.4 });
+});
 {
-  const at = PHONES.at(-1);
+  const at = s(T.GUILTY);
   mix.place(boom(0.7), at, { gain: 0.45, send: 0.3 });
   const [L, R] = strings([N.D3, N.Eb3, N.A3, N.D4], 2.6, { attack: 0.02, release: 2.2, cutoff: 1400 });
   mix.placeStereo(L, R, at, { gain: 0.45, send: 0.45 });
@@ -507,6 +516,13 @@ mix.place(crash(), HIT, { gain: 0.18, send: 0.5 });
   mix.place(shape(mul(tremolo, areEnv(tremolo.length, 1.5, 0.01)), SHARKS, duck), SHARKS, { gain: 0.05, pan: 0.2, send: 0.5 });
   const rise = riser(VOTE[1] - VOTE[0]);
   mix.place(mul(rise, 0.5), VOTE[0], { gain: 0.14, send: 0.3 });
+}
+// A finger across the table: a whoosh and a hit.
+{
+  const whoosh = filter(whiteNoise(len(0.5), rand), "bandpass", (t) => 600 + 3000 * (t / 0.5), 1.2);
+  mix.place(mul(whoosh, areEnv(whoosh.length, 0.35, 0.05)), POINT - 0.35, { gain: 0.12, pan: 0.3, send: 0.2 });
+  mix.place(tom(66), POINT, { gain: 0.4, send: 0.25 });
+  mix.place(boom(0.5), POINT, { gain: 0.3, send: 0.25 });
 }
 // Your thumb moving over the names: a tiny tick each time it lands on one.
 {

@@ -3,17 +3,22 @@
 // Nothing here gives the solution away, and no scene points at one character more
 // than the others.
 
-import { AbsoluteFill, Img, Sequence, getInputProps, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, OffthreadVideo, Sequence, getInputProps, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { Eyebrow, Monogram, Photo, Reveal, Shot, ease } from "../parts.jsx";
 import { C, F } from "../theme.js";
-import { CAST, HIT, LETTER_SHOTS, MORSE, PHONES, SCREENS, TAPES, THESIS, UNIT, WHISPERS } from "./timing.js";
+import { CARDS, CAST, GUILTY, HIT, LETTER_SHOTS, MORSE, PHONES, SCREENS, TAPES, THESIS, UNIT, WHISPERS } from "./timing.js";
 
 // The moving shots, animated from the stills with Higgsfield (Kling). A shot
 // whose clip is missing falls back to its photograph.
 export const CLIPS = {
-  cecil: "media/trailer-src/cecil-walk.mp4",
   key: "media/trailer-src/wireless-key.mp4",
+  // The table, moving: made from the table stills. Until they exist, each falls back to its still.
+  lookup: "media/trailer-src/table-lookup.mp4",
+  smile: "media/trailer-src/table-smile.mp4",
+  squirm: "media/trailer-src/table-squirm.mp4",
+  toast: "media/trailer-src/table-toast.mp4",
+  point: "media/trailer-src/table-point.mp4",
   deep: "media/trailer-src/hull-below.mp4",
   ship: "media/trailer-src/ship-push.mp4",
 };
@@ -119,15 +124,21 @@ function SharedScreen({ screen, f }) {
   );
 }
 
-/** Friends round a dinner table, the shared screen on the TV at the end. */
-function TableShot({ calm, screen, from = 1, to = 1.06, origin = "50% 45%" }) {
+/** Friends round a dinner table, the shared screen on the TV at the end. With `clip`, the table moves
+ * (the clips are shot locked off, so the TV stays where the photograph has it). */
+function TableShot({ calm, screen, clip: id, startFrom = 0, from = 1, to = 1.06, origin = "50% 45%" }) {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const scale = calm ? from : interpolate(frame, [0, durationInFrames], [from, to], { easing: ease });
+  const moving = !calm && id && clip(id);
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
       <AbsoluteFill style={{ transform: `scale(${scale})`, transformOrigin: origin }}>
-        <Img src={staticFile(TABLE)} style={{ width: "100%", height: "100%", objectFit: "cover", filter: LIFT }} />
+        {moving ? (
+          <OffthreadVideo src={staticFile(moving)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", filter: LIFT }} />
+        ) : (
+          <Img src={staticFile(TABLE)} style={{ width: "100%", height: "100%", objectFit: "cover", filter: LIFT }} />
+        )}
         {screen && (
           <div style={{ position: "absolute", left: TV.x, top: TV.y, width: TV.w, height: TV.h, boxShadow: "0 0 70px 12px rgba(70, 120, 200, 0.26)" }}>
             <SharedScreen screen={screen} f={frame} />
@@ -222,28 +233,47 @@ const buzz = (calm, f, at, amount = 6) => (calm || f < at || f > at + 12 ? 0 : M
 // ------------------------------------------------------------------ 1. one of you
 
 export function Table({ calm }) {
-  return <TableShot calm={calm} screen={SCREENS.prologue} from={1.0} to={1.07} origin="50% 40%" />;
+  return <TableShot calm={calm} screen={SCREENS.prologue} clip="lookup" from={1.0} to={1.07} origin="50% 40%" />;
 }
 
+/** A card between shots: a few words, slammed in on a hit. */
+function Card({ text, calm }) {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const slam = calm ? 1 : spring({ frame, fps, config: { damping: 18, mass: 0.5 } });
+  return (
+    <AbsoluteFill style={{ background: C.night, alignItems: "center", justifyContent: "center" }}>
+      <div style={{ fontFamily: F.display, fontWeight: 600, fontSize: 176, letterSpacing: "0.06em", textTransform: "uppercase", color: C.ink, transform: `scale(${1.08 - 0.08 * slam})`, opacity: Math.min(1, slam * 1.5) }}>
+        {text}
+      </div>
+      <div style={{ width: 260 * slam, height: 2, background: C.brass, marginTop: 26 }} />
+    </AbsoluteFill>
+  );
+}
+
+export const CardFriends = (props) => <Card text={CARDS.cardFriends} {...props} />;
+export const CardSecrets = (props) => <Card text={CARDS.cardSecrets} {...props} />;
+export const CardMurderer = (props) => <Card text={CARDS.cardMurderer} {...props} />;
+
+/** Three phones on the table, lighting up one after another. */
 export function Phones({ calm, from }) {
   const f = useCurrentFrame() + from;
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
       <TableBlur brightness={0.45} />
       {PHONES.map((at, i) => {
-        const on = interpolate(f, [at, at + 5], [0, 1], clamp);
-        const guilty = i === PHONES.length - 1;
+        const on = interpolate(f, [at, at + 4], [0, 1], clamp);
         const shake = buzz(calm, f, at, 5);
         return (
           <PhoneFrame
             key={i}
-            width={300}
-            height={600}
-            glow={on * (guilty ? 1.2 : 0.6)}
-            style={{ left: 180 + i * 410, top: 240 + [0, -30, 20, -10][i], transform: `rotate(${[-7, 4, -3, 6][i]}deg) translateX(${shake}px)` }}
+            width={330}
+            height={660}
+            glow={on * 0.7}
+            style={{ left: 280 + i * 480, top: 210 + [0, -30, 20][i], transform: `rotate(${[-7, 4, -3][i]}deg) translateX(${shake}px) scale(${calm ? 1 : 1 + 0.03 * (1 - on)})` }}
           >
             <div style={{ opacity: on, height: "100%" }}>
-              <Dossier guilty={guilty} />
+              <Dossier />
             </div>
           </PhoneFrame>
         );
@@ -252,14 +282,33 @@ export function Phones({ calm, from }) {
   );
 }
 
+/** The fourth phone, on its own: the one that says it. */
+export function Guilty({ calm, from }) {
+  const frame = useCurrentFrame();
+  const f = frame + from;
+  const on = interpolate(f, [GUILTY, GUILTY + 3], [0, 1], clamp);
+  const push = calm ? 1 : interpolate(frame, [0, 42], [1.0, 1.08], { ...clamp, easing: ease });
+  return (
+    <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
+      <TableBlur brightness={0.4} />
+      <AbsoluteFill style={{ background: `radial-gradient(ellipse at 50% 52%, rgba(178,58,54,${0.35 * on}) 0%, rgba(178,58,54,0) 55%)` }} />
+      <PhoneFrame width={440} height={880} glow={on * 1.3} style={{ left: 740, top: 100, transform: `rotate(2deg) scale(${push}) translateX(${buzz(calm, f, GUILTY, 6)}px)` }}>
+        <div style={{ opacity: on, height: "100%" }}>
+          <Dossier guilty />
+        </div>
+      </PhoneFrame>
+    </AbsoluteFill>
+  );
+}
+
+/** Cecil in the wireless room, left dark: he knows exactly which one. */
 export function Cecil({ calm }) {
   const frame = useCurrentFrame();
   const valves = calm ? 0.5 : 0.5 + 0.2 * Math.sin(frame * 0.9) * Math.sin(frame * 0.37 + 1);
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      {/* Cecil walks the corridor with a telegram and arrives on "which one", with the faintest smile. */}
-      <Shot clip={clip("cecil")} photo="media/photos/cecil.jpg" calm={calm} startFrom={30} from={1.02} to={1.08} style={{ filter: `${LIFT} brightness(1.05)` }} />
-      <AbsoluteFill style={{ background: `radial-gradient(ellipse at 22% 58%, rgba(255,170,80,${0.1 * valves}) 0%, rgba(255,170,80,0) 55%)`, mixBlendMode: "screen" }} />
+      <Photo src="media/photos/cecil-wireless.jpg" calm={calm} from={1.06} to={1.18} origin="74% 26%" />
+      <AbsoluteFill style={{ background: `radial-gradient(ellipse at 22% 58%, rgba(255,170,80,${0.18 * valves}) 0%, rgba(255,170,80,0) 55%)`, mixBlendMode: "screen" }} />
       <AbsoluteFill style={{ background: "linear-gradient(90deg, rgba(3,8,13,0.8) 0%, rgba(3,8,13,0.15) 42%, rgba(3,8,13,0) 58%)" }} />
       <Reveal at={14} calm={calm} style={{ position: "absolute", left: 130, bottom: 140 }}>
         <Eyebrow style={{ fontSize: 30 }}>Cecil</Eyebrow>
@@ -508,26 +557,26 @@ export function Deep({ calm, from }) {
 // ------------------------------------------------------------------ 3. dinner, as usual
 
 export function Dinner({ calm }) {
-  return <TableShot calm={calm} screen={SCREENS.act1} from={1.0} to={1.3} origin={TV_CENTRE} />;
+  return <TableShot calm={calm} screen={SCREENS.act1} clip="toast" from={1.0} to={1.3} origin={TV_CENTRE} />;
 }
 
-/** A private word from Cecil arriving on your phone, with the friend it's about just behind it, out of focus. `from` is the scene's first frame. */
+/** A private word from Cecil arriving on your phone, with the friend it's about just behind it, out of focus.
+ * The phone pops as it buzzes. `from` is the scene's first frame. */
 function WhisperScene({ whisper, behind, calm, from }) {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const f = frame + from;
-  const on = interpolate(f, [whisper.at, whisper.at + 6], [0, 1], clamp);
-  const rise = calm ? 0 : (1 - interpolate(f, [whisper.at + 2, whisper.at + 12], [0, 1], { ...clamp, easing: ease })) * 30;
-  const drift = calm ? 1.08 : interpolate(frame, [0, 80], [1.08, 1.13]);
+  const on = interpolate(f, [whisper.at, whisper.at + 5], [0, 1], clamp);
+  const pop = calm ? 1 : spring({ frame: f - whisper.at, fps, config: { damping: 11, mass: 0.5 } });
+  const drift = calm ? 1.08 : interpolate(frame, [0, 72], [1.06, 1.16]);
+  const moving = !calm && behind.clip && clip(behind.clip);
+  const look = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: behind.position, transform: `scale(${drift})`, filter: `${LIFT} blur(6px) brightness(0.82)` };
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      {behind ? (
-        <Img src={staticFile(behind.src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: behind.position, transform: `scale(${drift})`, filter: `${LIFT} blur(7px) brightness(0.82)` }} />
-      ) : (
-        <TableBlur brightness={0.62} />
-      )}
+      {moving ? <OffthreadVideo src={staticFile(moving)} muted style={look} /> : <Img src={staticFile(behind.src)} style={look} />}
       <AbsoluteFill style={{ background: "linear-gradient(90deg, rgba(3,8,13,0) 45%, rgba(3,8,13,0.4) 72%)" }} />
-      <PhoneFrame width={540} height={1080} glow={on} style={{ left: 1200, top: 40, transform: `rotate(-3deg) translateX(${buzz(calm, f, whisper.at)}px)` }}>
-        <div style={{ opacity: on, transform: `translateY(${rise}px)`, height: "100%" }}>
+      <PhoneFrame width={540} height={1080} glow={on} style={{ left: 1200, top: 40, transform: `rotate(-3deg) translateX(${buzz(calm, f, whisper.at)}px) scale(${0.94 + 0.06 * pop})` }}>
+        <div style={{ opacity: on, height: "100%" }}>
           <WhisperCard title={whisper.title} text={whisper.text} size={40} />
         </div>
       </PhoneFrame>
@@ -535,17 +584,9 @@ function WhisperScene({ whisper, behind, calm, from }) {
   );
 }
 
-export const WhisperKingsley = (props) => <WhisperScene whisper={WHISPERS.kingsley} behind={{ src: "media/photos/table-glance.jpg", position: "10% 40%" }} {...props} />;
-export const WhisperQuill = (props) => <WhisperScene whisper={WHISPERS.quill} behind={{ src: "media/photos/table-stare.jpg", position: "30% 45%" }} {...props} />;
-export const WhisperAshdown = (props) => <WhisperScene whisper={WHISPERS.ashdown} {...props} />;
-
-export function Glance({ calm }) {
-  return <Photo src="media/photos/table-glance.jpg" calm={calm} from={1.04} to={1.14} origin="54% 40%" style={{ filter: LIFT }} />;
-}
-
-export function Stare({ calm }) {
-  return <Photo src="media/photos/table-stare.jpg" calm={calm} from={1.03} to={1.12} origin="50% 44%" style={{ filter: LIFT }} />;
-}
+export const WhisperKingsley = (props) => <WhisperScene whisper={WHISPERS.kingsley} behind={{ clip: "smile", src: "media/photos/table-glance.jpg", position: "10% 40%" }} {...props} />;
+export const WhisperQuill = (props) => <WhisperScene whisper={WHISPERS.quill} behind={{ clip: "squirm", src: "media/photos/table-stare.jpg", position: "30% 45%" }} {...props} />;
+export const WhisperAshdown = (props) => <WhisperScene whisper={WHISPERS.ashdown} behind={{ clip: "lookup", src: TABLE, position: "80% 45%" }} {...props} />;
 
 /** Who a friend is playing tonight. */
 function Glimpse({ id, calm }) {
@@ -553,7 +594,7 @@ function Glimpse({ id, calm }) {
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
       <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 900, overflow: "hidden" }}>
-        <Photo src={`media/photos/${id}.jpg`} calm={calm} from={1.02} to={1.07} origin="50% 30%" style={{ objectPosition: "50% 22%", filter: LIFT }} />
+        <Photo src={`media/photos/${id}.jpg`} calm={calm} from={calm ? 1.02 : 1.12} to={1.02} origin="50% 30%" style={{ objectPosition: "50% 22%", filter: LIFT }} />
         <AbsoluteFill style={{ background: `linear-gradient(90deg, rgba(3,8,13,0) 55%, ${C.night} 100%)` }} />
       </div>
       <Reveal at={3} calm={calm} style={{ position: "absolute", left: 960, top: 330, width: 860 }}>
@@ -638,7 +679,7 @@ function LetterShot({ name, calm, index }) {
     case "table":
       return <TableShot calm={calm} screen={SCREENS.act2} from={1.2} to={1.26} origin={TV_CENTRE} />;
     case "cecil":
-      return <Photo src="media/photos/cecil-wireless.jpg" calm={calm} from={1.3} to={1.36} origin="78% 20%" style={{ filter: LIFT }} />;
+      return <Photo src="media/photos/cecil-wireless.jpg" calm={calm} from={1.3} to={1.36} origin="78% 20%" />;
     case "deep":
       return <Shot clip={clip("deep")} photo="media/photos/hull-below.jpg" calm={calm} startFrom={70} from={1.04} to={1.08} style={{ filter: DEEP_GRADE }} />;
     case "ship":
@@ -761,6 +802,12 @@ export function Title({ calm }) {
 /** The clock runs down on the shared screen. */
 export function Sharks({ calm }) {
   return <TableShot calm={calm} screen={SCREENS.act2} from={1.25} to={1.5} origin={TV_CENTRE} />;
+}
+
+/** A finger across the table. */
+export function Point({ calm }) {
+  // The TV always shows the game: the countdown carries on from the shot before.
+  return <TableShot calm={calm} screen={{ ...SCREENS.act2, countdown: SCREENS.act2.countdown - 2 }} clip="point" from={1.12} to={1.22} origin="60% 55%" />;
 }
 
 const CANDIDATES = ["Miss Kingsley (Priya)", "Mr Quill (Jonah)", "Miss Ashdown (Ellie)"];
