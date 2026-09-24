@@ -1,4 +1,4 @@
-// The telegram trailer: about 51 seconds, black to black, so it loops without a seam.
+// The telegram trailer: about 63 seconds, black to black, so it loops without a seam.
 // `calm` is the reduced-motion cut: no camera moves, flashes or shaking, and the
 // montage cross-fades instead of cutting. Both carry the same soundtrack
 // (sound/telegram.mjs); the page mutes the hero loop and plays sound only when
@@ -8,14 +8,60 @@ import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame
 
 import "../fonts.js";
 import { Grain, Scene, Vignette } from "../parts.jsx";
-import { Aboard, Chart, Deep, Opening, Porthole, SendIt, Title, Transmit, Wake, Wireless } from "./scenes.jsx";
+import {
+  Ashdown,
+  ChartClose,
+  Cecil,
+  Deep,
+  Dinner,
+  EndCard,
+  Glance,
+  Kingsley,
+  Phones,
+  Quill,
+  Sharks,
+  Ship,
+  Stare,
+  Table,
+  Thesis,
+  Title,
+  Transmit,
+  Vote,
+  Wake,
+  WhisperAshdown,
+  WhisperKingsley,
+  WhisperQuill,
+} from "./scenes.jsx";
 import { END, SCENES as AT } from "./timing.js";
 
-const X = 10; // cross-fade overlap, in frames
+const X = 8; // cross-fade overlap, in frames
 
-const COMPONENTS = { opening: Opening, wireless: Wireless, wake: Wake, chart: Chart, deep: Deep, aboard: Aboard, porthole: Porthole, send: SendIt, transmit: Transmit, title: Title };
-// Hard cuts where the soundtrack hits: under the ship, and on the title.
-const CUT = new Set(["deep", "transmit", "title"]);
+const COMPONENTS = {
+  table: Table,
+  phones: Phones,
+  cecil: Cecil,
+  ship: Ship,
+  wake: Wake,
+  chart: ChartClose,
+  deep: Deep,
+  dinner: Dinner,
+  whisperKingsley: WhisperKingsley,
+  glance: Glance,
+  kingsley: Kingsley,
+  whisperQuill: WhisperQuill,
+  stare: Stare,
+  quill: Quill,
+  whisperAshdown: WhisperAshdown,
+  ashdown: Ashdown,
+  thesis: Thesis,
+  transmit: Transmit,
+  title: Title,
+  sharks: Sharks,
+  vote: Vote,
+  endcard: EndCard,
+};
+// Hard cuts where the soundtrack hits: under the ship, the Morse, the title, and the vote going to black.
+const CUT = new Set(["deep", "transmit", "title", "vote"]);
 export const SCENES = Object.entries(AT).map(([id, [from, to]]) => ({ id, Component: COMPONENTS[id], from, dur: to - from }));
 
 export const TRAILER_FRAMES = END;
@@ -33,7 +79,7 @@ export function Trailer({ calm = false }) {
       <AbsoluteFill style={{ opacity: master }}>
         {SCENES.map(({ id, Component, from, dur }) => (
           <Sequence key={id} from={from} durationInFrames={dur} name={id}>
-            <Scene fade={calm ? 18 : CUT.has(id) ? 1 : X}>
+            <Scene fade={calm ? 14 : CUT.has(id) ? 1 : X}>
               <Component calm={calm} from={from} />
             </Scene>
           </Sequence>

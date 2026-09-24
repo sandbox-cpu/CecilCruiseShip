@@ -106,21 +106,22 @@ There are two cuts. The page plays **the telegram** by default; **the classic cu
 
 ### The telegram (the default)
 
-About 51 seconds, black to black, so it loops without a seam. It's built as a sequel's trailer: it doesn't reuse the first cut's structure or pictures. In the small hours Cecil walks into the ship's wireless room and dictates a telegram, and the trailer *is* that telegram. Each line he dictates comes up on telegram tape over the pictures. When he says "Send it", the operator keys the title in Morse code. The soundtrack's rhythm *is* the Morse: one cut per letter, and the title assembling on the tape as each letter lands.
+About 63 seconds, black to black, so it loops without a seam. It sells what playing is like: sitting at a table with your friends, one of whom did it, while Cecil stirs the pot. It doesn't reuse the first cut's structure; its rhythm is Morse code.
 
-1. Black, and a strip of tape typing itself out: *CECIL HAS TAKEN UP A NEW POSITION STOP*.
-2. Cecil in the doorway of the wireless room, the form's header typing in beside him (*FROM CECIL, CHIEF PURSER · TO WHOM IT MAY CONCERN*): *"Sparks. Take a telegram, would you?"* Sparks answers "R" on the key.
-3. The ship's wake at night: *"Regret to report. Mr Mortimer Crane went over the side at twenty past one."*
-4. A pencilled chart of the North Atlantic. The track from Madeira reaches tonight's position, and brass dividers walk the four days still to run to Barbados: *"Nearest port, four days."* The chart closes in on the sounding under the ship, circled in red: *"Nearest land, three miles…"*
-5. *"…Straight down."* Under the ship, looking up at her hull passing far overhead. *Dead reckoning: working out where you are from where you've been.*
-6. A typed list headed *PERSONS ABOARD*: the four passengers' photographs, each stamped *ABOARD*: *"Murderer believed to be aboard."*
-7. A storm at the porthole: *"Passengers will kindly not disembark."*
-8. Close on Cecil: *"Send it."* Then the transmission: DEAD RECKONING in Morse, one picture per letter (the key, the porthole, the grand staircase, the ballroom after the gala, the wake, the hull, the ship, Cecil, and each passenger for a moment). The four faces get about the same time on screen.
-9. The title: *A new case for Cecil · Dead Reckoning*. Cecil: *"Dinner will be served as usual."* It comes up on the tape as *DINNER AS USUAL STOP*, the stewards' dinner chimes play, and *Coming soon*.
+1. **One of you.** Friends round a dinner table, faces lit by their phones; the game's shared screen is on the TV at the end. Cecil: *"One of you killed Mortimer Crane."* Four phones light up one after another, each with a dossier; the last reads *You killed him. Nobody else knows. Keep it that way.* Cecil, in the ship's wireless room: *"And I know... exactly which one."*
+2. **Nowhere to go.** The Halcyon at night, the fact typed on telegram tape (*MR MORTIMER CRANE OVER THE SIDE 0120 STOP*). Cecil: *"He was a dreadful man. But he was my passenger."* The chart, close on tonight's position, the depth circled: *"Nearest land, three miles."* Under the ship: *"Straight down."*
+3. **Dinner as usual.** *"Dinner will be served as usual."* The stewards' chimes, and we're back at the table, where the shared screen says *I have had a private word with each of you. The Purser's Bureau never really closes.*
+4. **Cecil's mischief.** Three private words arrive on your phone, word for word as the game sends them, each about a different friend, with that friend just behind the phone. Then who that friend is playing tonight:
+   - *I have just told Miss Kingsley (Priya) something about you. Something true.* Priya glances over. **Miss Coral Kingsley**, Britain's sweetheart of 1949.
+   - *Ask Mr Quill (Jonah), in front of everyone, why their story has changed. It hasn't. Yet.* The table stares at Jonah. **Mr Laurence Quill**, travelling alone.
+   - *A task from Cecil: within ninety seconds, get two other people to agree that Miss Ashdown (Ellie) looks seasick.* **Miss Penelope Ashdown**, the Social Hostess.
+5. **Only one of you.** Cecil to the table: *More than one of you has lied to this table about last night.* A hit: *Only one of you is lying about murder.*
+6. **The transmission.** DEAD RECKONING goes out in Morse, one picture per letter, the title assembling on the tape: the key, the guilty phone, Priya, the shared screen, Jonah, Cecil, the three characters, the hull, a blank whisper (*Do look worried*), the ship. The three faces get about the same time on screen.
+7. **The title**, and then the vote. The shared screen's clock runs down: *One minute. I'd start deciding whom to throw to the sharks.* Your phone: *Who killed Mortimer Crane?* Cecil: *"Tell me, privately. Who killed Mortimer Crane?"* Your thumb moves from name to name, faster, and lifts. Black. A question mark in Morse. *Coming soon.*
 
-Every word on screen is Cecil's dictation, the game's public premise or its cast list. It gives nothing away that the game's prologue doesn't show every player.
+Every word on screen is the game's own: Cecil's lines and whispers as the game sends them, its public premise and its cast list. The whispers are real mischief from the game (a bluff, a secret task, and the line Cecil sends when he's told someone a secret about you); none of them hints at the answer, and the friends' names are examples. Nothing in it points at the solution or at one character more than the others.
 
-**The soundtrack.** Radio static and the hum of the wireless valves, the engines far below, the clatter of the teleprinter for every line of tape. A low drone on D gathers under Cecil's dictation, with a slow pulse under the chart. Everything drops away under the ship: a rush of water, a deep boom after "down", the screws turning overhead, the hull groaning, bubbles. Rubber stamps, a quicker heartbeat and thunder at the porthole; then near-silence for "Send it". The transmission is the score: Morse at 150 bpm (a dit is a sixteenth), a kick on every beat, the bass keyed with the Morse, a tom as each letter lands, and strings climbing D minor, B flat, G minor, A into the title hit. After Cecil's last line, the dinner chimes, in D major for once. The music ducks about 12 dB whenever Cecil speaks.
+**The soundtrack.** Phones buzzing on a table, a sting on the guilty one, and Cecil close and quiet. A sly plucked figure under "exactly which one". Sea, engines and a sad string chord for "my passenger"; a rush of water and a deep boom under the ship; the dinner chimes, in D major. Cecil's mischief gets a pizzicato ostinato that grows with each private word, a pulse that gets heavier, and a thump as each character is revealed. The music stops for "More than one of you has lied" and hits on "only one of you". The transmission is the score: Morse at 150 bpm (a dit is a sixteenth), a kick on every beat, the bass keyed with the Morse and strings climbing D minor, B flat, G minor, A into the title hit. Then the shared screen's clock ticks, a heartbeat quickens under the vote, and everything stops dead. A question mark in Morse, and the music is left on A, unresolved. It ducks about 12 dB whenever Cecil speaks.
 
 ### The classic cut
 
@@ -133,7 +134,7 @@ About 45 seconds, in nine scenes: Cecil's monogram; the Halcyon at night (*Three
 | `public/media/trailer-720.mp4` (`.webm`) | The telegram as the page's loop, played muted. It starts on the same frame as its still, so there's no jump. Also "Watch the trailer" on phones. |
 | `public/media/trailer-1080.mp4` | "Watch the trailer": the full version, with sound and controls. |
 | `public/media/trailer-calm-720.mp4` (`.webm`) | The reduced-motion cut: no camera moves, flashes or shaking, and the montage cross-fades instead of cutting. Same soundtrack. |
-| `public/media/still-hero.jpg` | The loop's still (Cecil in the wireless room), and all a reduced-motion visitor sees until they choose to play. |
+| `public/media/still-hero.jpg` | The loop's still (the dinner table, the shared screen on the TV), and all a reduced-motion visitor sees until they choose to play. |
 | `public/media/trailer-sound.wav` | The soundtrack on its own, as the videos are built from it. The page never loads it. |
 | `public/media/trailer-classic-*.mp4` (`.webm`), `still-classic.jpg`, `trailer-classic-sound.wav` | The same set for the classic cut. |
 | `public/media/poster.jpg` | The poster for the full trailer (either cut). |
@@ -169,9 +170,10 @@ The ship, its rooms, Cecil and the four passengers were made with [Higgsfield](h
 | `ballroom.jpg`, `smoking.jpg` | The ballroom and the Smoking Room (section backgrounds) | Soul Cinema |
 | `kingsley.jpg`, `quill.jpg`, `ashdown.jpg`, `pryce.jpg` | The four passengers | Soul Cinema |
 | `cecil-wireless.jpg` | Cecil in the doorway of the wireless room (the telegram trailer) | GPT Image 2.5, from the Chief Purser still |
-| `wireless-key.jpg`, `hull-below.jpg`, `wake.jpg`, `porthole.jpg`, `staircase.jpg`, `ballroom-after.jpg` | The Morse key, the hull seen from far below, the wake, a porthole in a storm, the grand staircase, the ballroom after the gala (the telegram trailer) | Soul Cinema |
+| `wireless-key.jpg`, `hull-below.jpg`, `wake.jpg` | The Morse key, the hull seen from far below, the wake (the telegram trailer) | Soul Cinema |
+| `table-night.jpg`, `table-glance.jpg`, `table-stare.jpg` | Friends playing round a dinner table; one glancing across it; one being stared at (the telegram trailer). The trailer puts the game's shared screen on the TV. | Soul Cinema |
 
-The trailers' moving shots in `public/media/trailer-src/` were animated from those stills with Kling 3.0: the ship, Cecil in the corridor and the lifebuoy for the classic cut; the Morse key and the hull overhead for the telegram. They're silent; the soundtracks supply the sound. Cecil's lines were generated with Seed Audio, using his lines from the Ravensmere trailer as the voice reference, so he sounds like the same Cecil. The telegram's eleven lines were recorded as one take and cut apart. Check that your Higgsfield plan allows commercial use before you use any of these in paid advertising.
+The trailers' moving shots in `public/media/trailer-src/` were animated from those stills with Kling 3.0: the ship, Cecil in the corridor and the lifebuoy for the classic cut; the Morse key and the hull overhead for the telegram. They're silent; the soundtracks supply the sound. Cecil's lines were generated with Seed Audio, using his lines from the Ravensmere trailer as the voice reference, so he sounds like the same Cecil. The telegram's lines were recorded in two takes and cut apart. Check that your Higgsfield plan allows commercial use before you use any of these in paid advertising.
 
 To swap a picture, keep the file name and roughly the same framing, then re-render the trailer if it appears there. The static build fingerprints every file in `public/media/`, so a new version is picked up straight away.
 

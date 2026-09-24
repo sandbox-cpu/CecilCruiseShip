@@ -17,9 +17,9 @@ const calm = () => reduceMotion.matches;
 const DEFAULT_CUT = "telegram";
 const CUTS = {
   telegram: {
-    heroSeconds: 214 / 30,
+    heroSeconds: 612 / 30,
     still: "/media/still-hero.jpg",
-    length: "About fifty seconds",
+    length: "About a minute",
     h264: { loop: "/media/trailer-720.mp4", full: "/media/trailer-1080.mp4", calm: "/media/trailer-calm-720.mp4" },
     vp9: { loop: "/media/trailer-720.webm", full: "/media/trailer-720.webm", calm: "/media/trailer-calm-720.webm" },
   },

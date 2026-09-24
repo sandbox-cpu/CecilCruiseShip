@@ -35,3 +35,11 @@ The user asked for a fresh trailer, because the first was a reskin of the Ravens
 - [x] New material from Higgsfield: seven stills, two Kling clips (the Morse key, the hull from below), one take of Cecil's new lines cut into eleven files
 - [x] "The telegram": `landing/trailer/src/telegram/` (Morse timing in `morse.js`), soundtrack `sound/telegram.mjs`
 - [x] Render, landing tests (including a browser test for the classic cut), README, push
+
+## Third pass on the trailer (user's follow-up)
+
+The telegram cut felt like a report of something already over. Re-cut around the table: friends at dinner, one of them did it, Cecil knows which, nobody can leave, Cecil's real mischief (whispers, a bluff, a secret task) about each friend, "Only one of you is lying about murder", the Morse title as the run-up to the vote, and an ending on the vote with nobody chosen.
+
+- [x] New material (1.56 of the last 1.65 Higgsfield credits): three stills of friends round a dinner table, one take of four new Cecil lines
+- [x] `landing/trailer/src/telegram/` and `sound/telegram.mjs` rewritten; the game's shared screen composited onto the TV in the table shot
+- [x] Render, landing tests, README, push; still the page's default cut (the classic cut unchanged)
