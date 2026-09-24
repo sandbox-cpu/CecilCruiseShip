@@ -12,6 +12,7 @@ import { CAST, HIT, LETTER_SHOTS, MORSE, PHONES, SCREENS, TAPES, THESIS, UNIT, W
 // The moving shots, animated from the stills with Higgsfield (Kling). A shot
 // whose clip is missing falls back to its photograph.
 export const CLIPS = {
+  cecil: "media/trailer-src/cecil-walk.mp4",
   key: "media/trailer-src/wireless-key.mp4",
   deep: "media/trailer-src/hull-below.mp4",
   ship: "media/trailer-src/ship-push.mp4",
@@ -21,6 +22,10 @@ const available = getInputProps().clips;
 const clip = (id) => (!available || available[id] ? CLIPS[id] : null);
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" };
+// The grade Trailer.jsx defines: photographs and moving shots get it; the phones and type don't.
+const LIFT = "url(#lift)";
+// The shot under the ship stays dark: lifting it brings up the clip's compression. It gets light from above instead.
+const DEEP_GRADE = "brightness(1.35) contrast(1.05)";
 const INK = "#1b1712";
 const RED = "#a8322d";
 
@@ -122,7 +127,7 @@ function TableShot({ calm, screen, from = 1, to = 1.06, origin = "50% 45%" }) {
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
       <AbsoluteFill style={{ transform: `scale(${scale})`, transformOrigin: origin }}>
-        <Img src={staticFile(TABLE)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <Img src={staticFile(TABLE)} style={{ width: "100%", height: "100%", objectFit: "cover", filter: LIFT }} />
         {screen && (
           <div style={{ position: "absolute", left: TV.x, top: TV.y, width: TV.w, height: TV.h, boxShadow: "0 0 70px 12px rgba(70, 120, 200, 0.26)" }}>
             <SharedScreen screen={screen} f={frame} />
@@ -135,11 +140,11 @@ function TableShot({ calm, screen, from = 1, to = 1.06, origin = "50% 45%" }) {
 }
 
 /** The table out of focus, for the phones to sit in front of. */
-function TableBlur({ brightness = 0.4 }) {
+function TableBlur({ brightness = 0.6 }) {
   return (
     <Img
       src={staticFile(TABLE)}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.2)", filter: `blur(24px) brightness(${brightness})` }}
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.2)", filter: `${LIFT} blur(24px) brightness(${brightness})` }}
     />
   );
 }
@@ -224,7 +229,7 @@ export function Phones({ calm, from }) {
   const f = useCurrentFrame() + from;
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      <TableBlur brightness={0.28} />
+      <TableBlur brightness={0.45} />
       {PHONES.map((at, i) => {
         const on = interpolate(f, [at, at + 5], [0, 1], clamp);
         const guilty = i === PHONES.length - 1;
@@ -252,8 +257,9 @@ export function Cecil({ calm }) {
   const valves = calm ? 0.5 : 0.5 + 0.2 * Math.sin(frame * 0.9) * Math.sin(frame * 0.37 + 1);
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      <Photo src="media/photos/cecil-wireless.jpg" calm={calm} from={1.06} to={1.18} origin="74% 26%" />
-      <AbsoluteFill style={{ background: `radial-gradient(ellipse at 22% 58%, rgba(255,170,80,${0.18 * valves}) 0%, rgba(255,170,80,0) 55%)`, mixBlendMode: "screen" }} />
+      {/* Cecil walks the corridor with a telegram and arrives on "which one", with the faintest smile. */}
+      <Shot clip={clip("cecil")} photo="media/photos/cecil.jpg" calm={calm} startFrom={30} from={1.02} to={1.08} style={{ filter: `${LIFT} brightness(1.05)` }} />
+      <AbsoluteFill style={{ background: `radial-gradient(ellipse at 22% 58%, rgba(255,170,80,${0.1 * valves}) 0%, rgba(255,170,80,0) 55%)`, mixBlendMode: "screen" }} />
       <AbsoluteFill style={{ background: "linear-gradient(90deg, rgba(3,8,13,0.8) 0%, rgba(3,8,13,0.15) 42%, rgba(3,8,13,0) 58%)" }} />
       <Reveal at={14} calm={calm} style={{ position: "absolute", left: 130, bottom: 140 }}>
         <Eyebrow style={{ fontSize: 30 }}>Cecil</Eyebrow>
@@ -268,7 +274,7 @@ export function Cecil({ calm }) {
 export function Ship({ calm, from }) {
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      <Shot clip={clip("ship")} photo="media/photos/ship.jpg" calm={calm} from={1.02} to={1.1} origin="55% 55%" />
+      <Shot clip={clip("ship")} photo="media/photos/ship.jpg" calm={calm} from={1.02} to={1.1} origin="55% 55%" style={{ filter: LIFT }} />
       <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(3,8,13,0) 50%, rgba(3,8,13,0.75) 100%)" }} />
       <TapeLines tapes={[TAPES.crane]} from={from} />
     </AbsoluteFill>
@@ -278,7 +284,7 @@ export function Ship({ calm, from }) {
 export function Wake({ calm, from }) {
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      <Photo src="media/photos/wake.jpg" calm={calm} from={1.03} to={1.12} origin="50% 28%" />
+      <Photo src="media/photos/wake.jpg" calm={calm} from={1.03} to={1.12} origin="50% 28%" style={{ filter: LIFT }} />
       <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(3,8,13,0) 45%, rgba(3,8,13,0.7) 100%)" }} />
       <TapeLines tapes={[TAPES.crane]} from={from} />
     </AbsoluteFill>
@@ -490,8 +496,10 @@ export function ChartClose({ calm, from }) {
 export function Deep({ calm, from }) {
   return (
     <AbsoluteFill style={{ background: "#01060b", overflow: "hidden" }}>
-      <Shot clip={clip("deep")} photo="media/photos/hull-below.jpg" calm={calm} from={1.02} to={1.08} style={{ filter: "brightness(1.35) contrast(1.05)" }} />
-      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(4,20,32,0) 40%, rgba(1,6,11,0.8) 100%)" }} />
+      <Shot clip={clip("deep")} photo="media/photos/hull-below.jpg" calm={calm} from={1.02} to={1.08} style={{ filter: DEEP_GRADE }} />
+      {/* Light coming down through the water, so the dark reads as sea rather than black. */}
+      <AbsoluteFill style={{ background: "radial-gradient(ellipse at 62% 0%, rgba(90,170,210,0.32) 0%, rgba(40,110,150,0.12) 45%, rgba(0,0,0,0) 75%)", mixBlendMode: "screen" }} />
+      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(4,20,32,0) 55%, rgba(1,6,11,0.6) 100%)" }} />
       <TapeLines tapes={[TAPES.land, TAPES.down]} from={from} />
     </AbsoluteFill>
   );
@@ -513,11 +521,11 @@ function WhisperScene({ whisper, behind, calm, from }) {
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
       {behind ? (
-        <Img src={staticFile(behind.src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: behind.position, transform: `scale(${drift})`, filter: "blur(7px) brightness(0.62)" }} />
+        <Img src={staticFile(behind.src)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: behind.position, transform: `scale(${drift})`, filter: `${LIFT} blur(7px) brightness(0.82)` }} />
       ) : (
-        <TableBlur brightness={0.42} />
+        <TableBlur brightness={0.62} />
       )}
-      <AbsoluteFill style={{ background: "linear-gradient(90deg, rgba(3,8,13,0) 35%, rgba(3,8,13,0.55) 70%)" }} />
+      <AbsoluteFill style={{ background: "linear-gradient(90deg, rgba(3,8,13,0) 45%, rgba(3,8,13,0.4) 72%)" }} />
       <PhoneFrame width={540} height={1080} glow={on} style={{ left: 1200, top: 40, transform: `rotate(-3deg) translateX(${buzz(calm, f, whisper.at)}px)` }}>
         <div style={{ opacity: on, transform: `translateY(${rise}px)`, height: "100%" }}>
           <WhisperCard title={whisper.title} text={whisper.text} size={40} />
@@ -532,11 +540,11 @@ export const WhisperQuill = (props) => <WhisperScene whisper={WHISPERS.quill} be
 export const WhisperAshdown = (props) => <WhisperScene whisper={WHISPERS.ashdown} {...props} />;
 
 export function Glance({ calm }) {
-  return <Photo src="media/photos/table-glance.jpg" calm={calm} from={1.04} to={1.14} origin="54% 40%" />;
+  return <Photo src="media/photos/table-glance.jpg" calm={calm} from={1.04} to={1.14} origin="54% 40%" style={{ filter: LIFT }} />;
 }
 
 export function Stare({ calm }) {
-  return <Photo src="media/photos/table-stare.jpg" calm={calm} from={1.03} to={1.12} origin="50% 44%" />;
+  return <Photo src="media/photos/table-stare.jpg" calm={calm} from={1.03} to={1.12} origin="50% 44%" style={{ filter: LIFT }} />;
 }
 
 /** Who a friend is playing tonight. */
@@ -545,7 +553,7 @@ function Glimpse({ id, calm }) {
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
       <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 900, overflow: "hidden" }}>
-        <Photo src={`media/photos/${id}.jpg`} calm={calm} from={1.04} to={1.12} origin="50% 30%" style={{ objectPosition: "50% 22%" }} />
+        <Photo src={`media/photos/${id}.jpg`} calm={calm} from={1.02} to={1.07} origin="50% 30%" style={{ objectPosition: "50% 22%", filter: LIFT }} />
         <AbsoluteFill style={{ background: `linear-gradient(90deg, rgba(3,8,13,0) 55%, ${C.night} 100%)` }} />
       </div>
       <Reveal at={3} calm={calm} style={{ position: "absolute", left: 960, top: 330, width: 860 }}>
@@ -568,7 +576,7 @@ export function Thesis({ calm, from }) {
   const hit = calm ? interpolate(f, [THESIS.second, THESIS.second + 14], [0, 1], clamp) : spring({ frame: f - THESIS.second, fps: 30, config: { damping: 14, mass: 0.6 } });
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      <TableBlur brightness={0.3} />
+      <TableBlur brightness={0.5} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", textAlign: "center", padding: "0 160px" }}>
         <Reveal at={THESIS.at - from} calm={calm}>
           <Eyebrow style={{ fontSize: 28 }}>Cecil, to the table</Eyebrow>
@@ -604,11 +612,11 @@ const NAMES = { kingsley: "MISS KINGSLEY · PRIYA", quill: "MR QUILL · JONAH", 
 function LetterShot({ name, calm, index }) {
   switch (name) {
     case "key":
-      return <Shot clip={clip("key")} photo="media/photos/wireless-key.jpg" calm={calm} startFrom={index === 0 ? 12 : 96} from={1.04} to={1.1} />;
+      return <Shot clip={clip("key")} photo="media/photos/wireless-key.jpg" calm={calm} startFrom={index === 0 ? 12 : 96} from={1.04} to={1.1} style={{ filter: LIFT }} />;
     case "banner":
       return (
         <AbsoluteFill style={{ background: C.night }}>
-          <TableBlur brightness={0.25} />
+          <TableBlur brightness={0.42} />
           <PhoneFrame width={420} height={840} glow={1.2} style={{ left: 750, top: 120, transform: "rotate(2deg)" }}>
             <Dossier guilty />
           </PhoneFrame>
@@ -617,29 +625,32 @@ function LetterShot({ name, calm, index }) {
     case "whisper":
       return (
         <AbsoluteFill style={{ background: C.night }}>
-          <TableBlur brightness={0.3} />
+          <TableBlur brightness={0.5} />
           <PhoneFrame width={420} height={840} glow={1} style={{ left: 760, top: 120, transform: "rotate(-3deg)" }}>
             <WhisperCard text="I have nothing for you. But the others don’t know that. Do look worried." size={30} />
           </PhoneFrame>
         </AbsoluteFill>
       );
     case "glance":
-      return <Photo src="media/photos/table-glance.jpg" calm={calm} from={1.16} to={1.22} origin="54% 40%" />;
+      return <Photo src="media/photos/table-glance.jpg" calm={calm} from={1.12} to={1.18} origin="54% 40%" style={{ filter: LIFT }} />;
     case "stare":
-      return <Photo src="media/photos/table-stare.jpg" calm={calm} from={1.14} to={1.2} origin="50% 44%" />;
+      return <Photo src="media/photos/table-stare.jpg" calm={calm} from={1.1} to={1.16} origin="50% 44%" style={{ filter: LIFT }} />;
     case "table":
       return <TableShot calm={calm} screen={SCREENS.act2} from={1.2} to={1.26} origin={TV_CENTRE} />;
     case "cecil":
-      return <Photo src="media/photos/cecil-wireless.jpg" calm={calm} from={1.9} to={2.02} origin="79% 13%" />;
+      return <Photo src="media/photos/cecil-wireless.jpg" calm={calm} from={1.3} to={1.36} origin="78% 20%" style={{ filter: LIFT }} />;
     case "deep":
-      return <Shot clip={clip("deep")} photo="media/photos/hull-below.jpg" calm={calm} startFrom={70} from={1.04} to={1.08} style={{ filter: "brightness(1.35)" }} />;
+      return <Shot clip={clip("deep")} photo="media/photos/hull-below.jpg" calm={calm} startFrom={70} from={1.04} to={1.08} style={{ filter: DEEP_GRADE }} />;
     case "ship":
-      return <Shot clip={clip("ship")} photo="media/photos/ship.jpg" calm={calm} startFrom={60} from={1.04} to={1.1} />;
+      return <Shot clip={clip("ship")} photo="media/photos/ship.jpg" calm={calm} startFrom={60} from={1.04} to={1.1} style={{ filter: LIFT }} />;
     default:
-      // A character: tight on the eyes, name typed small in the corner.
+      // A character, at the photograph's own resolution (no enlarging), with a soft copy filling the frame.
       return (
-        <AbsoluteFill>
-          <Photo src={`media/photos/${name}.jpg`} calm={calm} from={1.02} to={1.08} origin="50% 30%" style={{ objectPosition: "50% 27%" }} />
+        <AbsoluteFill style={{ background: C.night }}>
+          <Img src={staticFile(`media/photos/${name}.jpg`)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.15)", filter: `${LIFT} blur(28px) brightness(0.55)` }} />
+          <div style={{ position: "absolute", left: 555, top: 0, width: 810, height: 1080, overflow: "hidden", boxShadow: "0 0 80px rgba(0,0,0,0.6)" }}>
+            <Photo src={`media/photos/${name}.jpg`} calm={calm} from={1.0} to={1.05} origin="50% 30%" style={{ filter: LIFT }} />
+          </div>
           <div style={{ position: "absolute", left: 130, top: 110, fontFamily: F.tape, fontWeight: 700, fontSize: 30, letterSpacing: "0.12em", color: C.ink, textShadow: "0 2px 16px rgba(0,0,0,0.9)" }}>
             {NAMES[name]}
           </div>
@@ -728,7 +739,7 @@ export function Title({ calm }) {
   const shake = calm ? 0 : Math.max(0, 1 - frame / 14) * Math.sin(frame * 3.1) * 7;
   return (
     <AbsoluteFill style={{ background: "#01060b", overflow: "hidden" }}>
-      <Img src={staticFile("media/photos/hull-below.jpg")} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.7, transform: "scale(1.12)", filter: "brightness(1.3)" }} />
+      <Img src={staticFile("media/photos/hull-below.jpg")} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.8, transform: "scale(1.12)", filter: DEEP_GRADE }} />
       <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 48%, rgba(1,6,11,0.5) 0%, rgba(1,6,11,0.88) 70%)" }} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", textAlign: "center", transform: `translateX(${shake}px)` }}>
         <Reveal at={4} calm={calm}>
@@ -749,7 +760,7 @@ export function Title({ calm }) {
 
 /** The clock runs down on the shared screen. */
 export function Sharks({ calm }) {
-  return <TableShot calm={calm} screen={SCREENS.act2} from={1.45} to={1.85} origin={TV_CENTRE} />;
+  return <TableShot calm={calm} screen={SCREENS.act2} from={1.25} to={1.5} origin={TV_CENTRE} />;
 }
 
 const CANDIDATES = ["Miss Kingsley (Priya)", "Mr Quill (Jonah)", "Miss Ashdown (Ellie)"];
@@ -764,7 +775,7 @@ export function Vote({ calm }) {
   const hovering = frame < 34 || lifted ? -1 : Math.floor(((frame - 34) / 14) ** 1.3) % CANDIDATES.length;
   return (
     <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
-      <TableBlur brightness={0.34} />
+      <TableBlur brightness={0.55} />
       <PhoneFrame width={560} height={1120} glow={0.8} style={{ left: 680, top: 30, transform: `scale(${1 + beat * 0.004})` }}>
         <div style={{ padding: "84px 34px 30px", fontFamily: F.serif, color: C.ink }}>
           <div style={{ ...small, fontSize: 17 }}>The accusation</div>

@@ -7,7 +7,7 @@
 import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 import "../fonts.js";
-import { Grain, Scene, Vignette } from "../parts.jsx";
+import { Scene, Vignette } from "../parts.jsx";
 import {
   Ashdown,
   ChartClose,
@@ -60,6 +60,24 @@ const COMPONENTS = {
   vote: Vote,
   endcard: EndCard,
 };
+/** The grade: a gamma lift that opens up the shadows and mid-tones of the night photographs without
+ * clipping the candles and screens (CSS brightness would). Scenes apply it with filter: url(#lift). */
+function Grade() {
+  const channel = (exponent) => ["R", "G", "B"].map((c) => {
+    const Func = `feFunc${c}`;
+    return <Func key={c} type="gamma" amplitude="1" exponent={exponent} offset="0" />;
+  });
+  return (
+    <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+      <defs>
+        <filter id="lift" colorInterpolationFilters="sRGB">
+          <feComponentTransfer>{channel(0.6)}</feComponentTransfer>
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
 // Hard cuts where the soundtrack hits: under the ship, the Morse, the title, and the vote going to black.
 const CUT = new Set(["deep", "transmit", "title", "vote"]);
 export const SCENES = Object.entries(AT).map(([id, [from, to]]) => ({ id, Component: COMPONENTS[id], from, dur: to - from }));
@@ -76,6 +94,7 @@ export function Trailer({ calm = false }) {
   });
   return (
     <AbsoluteFill style={{ background: "#03080d" }}>
+      <Grade />
       <AbsoluteFill style={{ opacity: master }}>
         {SCENES.map(({ id, Component, from, dur }) => (
           <Sequence key={id} from={from} durationInFrames={dur} name={id}>
@@ -86,8 +105,7 @@ export function Trailer({ calm = false }) {
         ))}
       </AbsoluteFill>
       <Audio src={staticFile("media/trailer-sound.wav")} />
-      <Vignette />
-      <Grain calm={calm} />
+      <Vignette strength={0.4} />
     </AbsoluteFill>
   );
 }

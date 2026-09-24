@@ -50,7 +50,7 @@ async function video(id, file, extra = {}) {
     ...common,
     composition,
     codec: "h264",
-    crf: 24,
+    crf: 19,
     pixelFormat: "yuv420p",
     // Standard limited-range BT.709, which every phone and browser decodes the same way.
     colorSpace: "bt709",
@@ -97,13 +97,13 @@ const wants = (part) => only === "all" || only === "classic" || only === part;
 for (const cut of cuts) {
   if (wants("full")) {
     await video(cut.id, `${cut.prefix}-1080.mp4`);
-    await video(cut.id, `${cut.prefix}-720.mp4`, { scale: 2 / 3, crf: 26 });
+    await video(cut.id, `${cut.prefix}-720.mp4`, { scale: 2 / 3, crf: 21 });
   }
   // For browsers without H.264 (some open-source builds): VP9 in WebM.
-  if (wants("full") || only === "webm") await video(cut.id, `${cut.prefix}-720.webm`, { scale: 2 / 3, codec: "vp9", crf: 36 });
+  if (wants("full") || only === "webm") await video(cut.id, `${cut.prefix}-720.webm`, { scale: 2 / 3, codec: "vp9", crf: 31 });
   if (wants("calm")) {
-    await video(`${cut.id}Calm`, `${cut.prefix}-calm-720.mp4`, { scale: 2 / 3, crf: 26 });
-    await video(`${cut.id}Calm`, `${cut.prefix}-calm-720.webm`, { scale: 2 / 3, codec: "vp9", crf: 36 });
+    await video(`${cut.id}Calm`, `${cut.prefix}-calm-720.mp4`, { scale: 2 / 3, crf: 21 });
+    await video(`${cut.id}Calm`, `${cut.prefix}-calm-720.webm`, { scale: 2 / 3, codec: "vp9", crf: 31 });
   }
   if (wants("stills")) await still(cut.id, cut.still, cut.hero, 2 / 3);
 }
