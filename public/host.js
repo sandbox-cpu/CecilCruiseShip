@@ -20,8 +20,20 @@ let lastWhisper = new Map();
 // "/?case=halcyon" opens a new table on that mystery; otherwise the last one
 // this screen chose, or the server's default.
 const askedCase = new URLSearchParams(location.search).get("case");
+// "/?watch=CODE" is a read-only copy of another screen's game, for players who aren't in the
+// same room (on a video or voice call). It shows and speaks everything; it can't run the evening.
+const watchCode = new URLSearchParams(location.search).get("watch");
+document.body.classList.toggle("watching", Boolean(watchCode));
 
 async function connect() {
+  if (watchCode) {
+    const watched = await call(socket, "screen:watch", { code: watchCode });
+    if (!watched.ok) {
+      $("lobby").hidden = false;
+      $("lobby-cecil").textContent = watched.error;
+    }
+    return;
+  }
   const previous = saved.get();
   if (previous) {
     const resumed = await call(socket, "host:resume", previous);
@@ -91,6 +103,9 @@ function renderLobby() {
   $("qr").src = `/qr/${state.code}.svg`;
   $("join-url").textContent = state.joinUrl.replace(/\?room=.*$/, "");
   $("room-code").textContent = state.code;
+  $("watch-url").textContent = watchCode
+    ? "You're watching the shared screen. Join from your phone, or in another window, to play."
+    : `Playing over a call? Friends elsewhere can watch this screen at ${state.watchUrl}`;
   patch($("lobby-status"), statusPills());
 
   const { min, max } = state.lobby;

@@ -35,6 +35,16 @@ export function lanAddress() {
   return candidates.find(privateRange) || candidates[0] || "localhost";
 }
 
+/** The address a browser used to reach us, when that isn't this machine itself: through an HTTPS
+ * tunnel, the tunnel's address. Null for localhost, so the LAN address is used instead. */
+export function originOf(socket) {
+  const headers = socket.handshake.headers;
+  const host = String(headers["x-forwarded-host"] || headers.host || "").split(",")[0].trim().toLowerCase();
+  if (!/^[a-z0-9.-]+(:\d{1,5})?$/.test(host) || /^(localhost|127\.|0\.0\.0\.0)/.test(host)) return null;
+  const proto = String(headers["x-forwarded-proto"] || "").split(",")[0].trim().toLowerCase();
+  return `${proto === "https" ? "https" : "http"}://${host}`;
+}
+
 export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null, port = 3000, defaultCase = DEFAULT_CASE, log = console } = {}) {
   const startingCase = scenarioFor(defaultCase) ? defaultCase : DEFAULT_CASE;
   const app = express();
@@ -42,8 +52,12 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
   const io = new Server(server, { serveClient: true });
   const rooms = new Map();
 
-  const baseUrl = () => publicUrl || `http://${lanAddress()}:${server.address()?.port || port}`;
-  const joinUrl = (code) => `${baseUrl()}/join?room=${code}`;
+  // Where phones should go. PUBLIC_URL wins; otherwise the address the shared screen itself was opened
+  // at (so a game hosted through an HTTPS tunnel hands out the tunnel's address), or the laptop's LAN address.
+  const baseUrl = (room) => publicUrl || room?.origin || `http://${lanAddress()}:${server.address()?.port || port}`;
+  const joinUrl = (room) => `${baseUrl(room)}/join?room=${room.code}`;
+  // A read-only copy of the shared screen, for players who aren't in the room (over a video or voice call).
+  const watchUrl = (room) => `${baseUrl(room)}/?watch=${room.code}`;
 
   // ------------------------------------------------------------------ pages
 
@@ -60,7 +74,7 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
   app.get("/qr/:code.svg", async (req, res) => {
     const room = rooms.get(String(req.params.code).toUpperCase());
     if (!room) return res.status(404).end();
-    const svg = await QRCode.toString(joinUrl(room.code), { type: "svg", margin: 1, color: { dark: "#1b1410", light: "#f4ecd8" } });
+    const svg = await QRCode.toString(joinUrl(room), { type: "svg", margin: 1, color: { dark: "#1b1410", light: "#f4ecd8" } });
     res.type("image/svg+xml").send(svg);
   });
 
@@ -151,12 +165,16 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
     }
   }
 
+  // What the shared screen shows. Watchers get exactly the same view as the host's screen.
+  function screenView(room) {
+    return { ...room.game.hostView(), joinUrl: joinUrl(room), watchUrl: watchUrl(room), voice: voice ? voice.provider : "browser", cases: caseList() };
+  }
+
   function broadcast(room, force = false) {
     const { game } = room;
     if (!force && room.sentVersion === game.version) return;
     room.sentVersion = game.version;
-    const hostView = { ...game.hostView(), joinUrl: joinUrl(room.code), voice: voice ? voice.provider : "browser", cases: caseList() };
-    io.to(`host:${room.code}`).emit("state", hostView);
+    io.to(`host:${room.code}`).emit("state", screenView(room));
     for (const id of io.sockets.adapter.rooms.get(`players:${room.code}`) || []) {
       const socket = io.sockets.sockets.get(id);
       const seat = socket && seatByToken(room, socket.data.token);
@@ -232,19 +250,30 @@ export function createApp({ ai = null, voice = null, speed = 1, publicUrl = null
 
     handle(socket, "host:create", async ({ caseId } = {}) => {
       const room = createRoom(caseId);
+      room.origin = originOf(socket);
       socket.data.hostCode = room.code;
       socket.join(`host:${room.code}`);
       broadcast(room, true);
-      return { code: room.code, hostToken: room.hostToken, joinUrl: joinUrl(room.code) };
+      return { code: room.code, hostToken: room.hostToken, joinUrl: joinUrl(room) };
     });
 
     handle(socket, "host:resume", async ({ code, hostToken }) => {
       const room = roomFor(code);
       if (!hostToken || hostToken !== room.hostToken) throw new GameError("That game belongs to another screen.");
+      room.origin = originOf(socket) || room.origin;
       socket.data.hostCode = room.code;
       socket.join(`host:${room.code}`);
       broadcast(room, true);
-      return { code: room.code, joinUrl: joinUrl(room.code) };
+      return { code: room.code, joinUrl: joinUrl(room) };
+    });
+
+    // Watch the shared screen from another computer. Read-only: the host's buttons all check
+    // socket.data.hostCode, which a watcher never gets.
+    handle(socket, "screen:watch", async ({ code }) => {
+      const room = roomFor(code);
+      socket.join(`host:${room.code}`);
+      socket.emit("state", screenView(room));
+      return { code: room.code };
     });
 
     asHost("host:addGuest", (room) => void room.game.addGuest());

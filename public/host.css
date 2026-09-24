@@ -41,6 +41,15 @@ h2 {
 .lobby-join img { width: 100%; max-width: 280px; height: auto; border-radius: 10px; background: var(--paper); padding: 10px; }
 .join-label { color: var(--muted); font-family: var(--sans); font-size: 0.85em; margin: 14px 0 4px; }
 .join-url { font-family: var(--sans); font-size: 1.05em; margin: 0; word-break: break-all; color: var(--ink); }
+.watch-url { margin: 14px 0 0; word-break: break-all; }
+/* A watching screen shows everything but can't run the evening. */
+.watching #case-picker,
+.watching .lobby-actions,
+.watching [data-action="pause"],
+.watching [data-action="skip"],
+.watching [data-action="reset"],
+.watching [data-action="remove-seat"],
+.watching [data-action="takeover"] { display: none; }
 .room-code { font-size: clamp(44px, 4.5vw, 84px); letter-spacing: 0.25em; margin: 4px 0 0 0.25em; color: var(--brass-2); }
 
 .lobby-seats { padding: 26px; }

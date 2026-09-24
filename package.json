@@ -11,6 +11,7 @@
     "start": "node server/index.js",
     "halcyon": "node server/index.js --case=halcyon",
     "ravensmere": "node server/index.js --case=ravensmere",
+    "remote": "node scripts/remote.js",
     "test": "node --test --test-reporter=spec \"test/*.test.js\"",
     "test:browser": "node --test --test-concurrency=1 --test-reporter=spec \"test/browser/*.test.js\""
   },

@@ -52,6 +52,21 @@ The first time, your computer may ask whether Node can accept connections on you
 - The top bar has **Pause** and **Skip** buttons.
 - To demo alone, open the join page in two different browsers, or a normal window plus a private one. Each one counts as a separate player.
 
+### Playing over the internet
+
+Friends somewhere else can play too, on a voice or video call. `npm run remote` starts the game and a free, temporary HTTPS link to it (a Cloudflare quick tunnel: no account, nothing to install beyond Node; the first run fetches it):
+
+```bash
+npm run remote                         # the default case
+npm run remote -- --case=ravensmere    # A Nightcap at Ravensmere
+```
+
+1. It prints **Your link: https://…trycloudflare.com**. Open that link (not localhost) on your computer: that's the shared screen.
+2. The lobby shows two addresses for your friends: the **watch link** (`…/?watch=CODE`), a read-only copy of the shared screen for their computer, which speaks Cecil's lines too; and the **join link** and code, for their private player screen, on a phone or in another browser window. Everyone, you included, needs a player screen.
+3. Talk over your usual call; headphones stop Cecil echoing. Press Ctrl+C in the terminal to finish. Each run gets a new link, and it only works while that window is open.
+
+Keep the link to the people you're playing with: anyone with it and the four-letter code can take a seat. If the link doesn't start, your network may be blocking Cloudflare's tunnel port (7844); a phone hotspot usually works.
+
 ### Cecil's brain and voice (optional)
 
 Your existing `.env` works unchanged for both cases. Copy `.env.example` to `.env` and add whichever keys you have:
@@ -124,6 +139,7 @@ CecilCruiseShip/
 │   ├── pack.html             # A Nightcap at Ravensmere's printable evidence pack
 │   ├── pack-halcyon.html     # Dead Reckoning's printable evidence pack
 │   └── shared.js, theme.css  # helpers, and each case's colours
+├── scripts/remote.js         # npm run remote: the game plus a temporary HTTPS link, for playing over a call
 ├── test/                     # engine, AI, server and browser tests for both cases (spoilers)
 └── landing/                  # the Dead Reckoning coming-soon page, waitlist and trailers (see landing/README.md)
 ```
