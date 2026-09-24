@@ -22,7 +22,7 @@ Repo: `sandbox-cpu/CecilCruiseShip`, branch `claude/cecil-cruise-mystery-6kjt7d`
 - [x] Scenario `halcyon.js`, Halcyon theme, printable pack with deck plan
 - [x] Tests: evidence audit, scripted evenings, firewall, AI layer, sockets, browser playthroughs of both cases (97 + 2 browser)
 - [x] Higgsfield stills and Cecil's lines generated (job IDs in the session; results live on Higgsfield's CDN)
-- [ ] Download the Higgsfield results into `landing/public/media` (blocked: this environment's network policy refuses `d8j0ntlcm91z4.cloudfront.net`)
-- [ ] Kling moving shots for the trailer (after reviewing the stills)
-- [ ] Render the trailer, calm cut, poster and social card; landing tests; landing README
-- [ ] Final push
+- [x] Download the Higgsfield results into `landing/public/media` (needed the environment's network access set to Full)
+- [x] Kling moving shots for the trailer: the ship, Cecil in the corridor, the sea (`landing/public/media/trailer-src/`)
+- [x] Render the trailer, calm cut, poster and social card; landing tests; landing README
+- [x] Final push

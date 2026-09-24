@@ -174,7 +174,7 @@ The browser test fills in the form end to end: it triggers errors, uses the typo
 
 ## What the page says, and doesn't
 
-The page sells the parts of the game that are real today: 3–4 players in the same room, about 15 minutes, one shared screen plus private phones, AI guests in empty chairs, Cecil's whispers and mischief, and an optional printed evidence pack. It doesn't promise online play or replayability. The FAQ says plainly that the mystery has a single solution.
+The page sells the parts of the game that are real today: 3–4 players in the same room, about 15–20 minutes, one shared screen plus private phones, AI guests in empty chairs, Cecil's whispers and mischief, and an optional printed evidence pack. It doesn't promise online play or replayability. The FAQ says plainly that the mystery has a single solution.
 
 It never reveals the solution. It shows only what every player learns in the prologue and the first act (Cecil's account of the night, the clocks going back, the man overboard at No. 7 lifeboat, the locked attaché case), plus the cast list from the printable pack. The mock phone that reads "You killed him" has no character name on it, and none of the example whispers point at anyone in particular.
 

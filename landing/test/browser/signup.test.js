@@ -130,8 +130,8 @@ describe("the landing page in a browser", { skip: !chromium && "playwright is no
 
     // Cecil answers from the script.
     await page.click('.chip[data-q="who"]');
-    await page.waitForFunction(() => document.querySelector("[data-answer]").textContent.includes("rather the point of the evening"));
-    assert.match(await page.textContent("[data-answer-sr]"), /rather the point of the evening/);
+    await page.waitForFunction(() => document.querySelector("[data-answer]").textContent.includes("rather the point of the voyage"));
+    assert.match(await page.textContent("[data-answer-sr]"), /rather the point of the voyage/);
 
     assert.deepEqual(problems, []);
     await context.close();
