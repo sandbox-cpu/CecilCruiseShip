@@ -537,6 +537,12 @@ function Marks({ f }) {
 
 const TITLE = "DEAD RECKONING";
 
+/** Fade in and out over `fade` frames, or less if the shot is too short for both. */
+const crossFade = (t, dur, fade) => {
+  const f = Math.max(1, Math.min(fade, Math.floor((dur - 1) / 2)));
+  return interpolate(t, [0, f, dur - f, dur], [0, 1, 1, 0], clamp);
+};
+
 export function Transmit({ calm, from }) {
   const frame = useCurrentFrame();
   const f = frame + from;
@@ -568,7 +574,7 @@ export function Transmit({ calm, from }) {
     <AbsoluteFill style={{ background: "#000" }}>
       {shots.map((s, i) => (
         <Sequence key={i} from={s.start} durationInFrames={s.dur} name={`${TITLE.replace(" ", "")[i]} · ${s.name}`}>
-          <AbsoluteFill style={{ opacity: fade ? interpolate(frame - s.start, [0, fade, s.dur - fade, s.dur], [0, 1, 1, 0], clamp) : 1, overflow: "hidden" }}>
+          <AbsoluteFill style={{ opacity: fade ? crossFade(frame - s.start, s.dur, fade) : 1, overflow: "hidden" }}>
             <LetterShot name={s.name} calm={calm} index={i} />
           </AbsoluteFill>
         </Sequence>
