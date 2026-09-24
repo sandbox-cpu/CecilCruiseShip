@@ -629,6 +629,95 @@ export default {
     },
   ],
 
+  // The deduction, step by step, with the evidence for each. Tests check that
+  // every quoted phrase really appears where it says, that every source can be
+  // reached in play, and that each step survives without the optional fourth
+  // character. Sources: a public evidence id, a clue id, "dictaphone",
+  // "envelope.front", "envelope.back", or "knows:<character>" (a dossier).
+  solution: {
+    steps: [
+      {
+        claim: "He went over the side at 1.20am, after the clocks went back an hour.",
+        evidence: [
+          ["p_account", "1.20am (second time): man overboard"],
+          ["p_programme", "clocks will be retarded one hour at 2.00am"],
+          ["p_bridge", "02.00: Clocks retarded one hour. 01.20: Lookout reports MAN OVERBOARD"],
+        ],
+      },
+      {
+        claim: "He was already dead when he went over.",
+        evidence: [
+          ["p_lookout", "Didn't cry out. Didn't kick."],
+          ["c_cabin", "hasn't been put back"],
+          ["c_cabin", "The bed hasn't been slept in"],
+          ["dictaphone", "A fall"],
+          ["knows:kingsley", "He didn't make a sound"],
+        ],
+      },
+      {
+        claim: "He was struck down in cabin A128 at about 12.40am, before the whistle salute at 1.10am, the first time round.",
+        evidence: [
+          ["dictaphone", "Twelve thirty-four"],
+          ["dictaphone", "three long blasts"],
+          ["p_bridge", "01.10: Exchanged whistle salutes"],
+          ["c_cabin", "a patch of carpet has been scrubbed"],
+          ["knows:pryce", "whistle salute"],
+        ],
+      },
+      {
+        claim: "Mr Crane's attaché case opens with his cabin number back to front: 821.",
+        evidence: [
+          ["envelope.front", "Cabin A128"],
+          ["envelope.back", "YOUR CABIN NUMBER BACK TO FRONT"],
+          ["p_account", "A128"],
+        ],
+      },
+      {
+        claim: "His visitor was a woman from the Hartley affair who had gone to sea under a new name.",
+        evidence: [
+          ["dictaphone", "A WOMAN"],
+          ["dictaphone", "She went to sea and changed her name"],
+          ["c_radio", "SHE IS ABOARD"],
+          ["knows:quill", "Whoever was in there with him was a woman"],
+          ["knows:pryce", "expecting a lady"],
+        ],
+      },
+      {
+        claim: "The girl in the Hartley affair was Penelope Garland, and Miss Ashdown was once Garland.",
+        evidence: [
+          ["x_cutting", "Miss Penelope Garland"],
+          ["x_records", "Previously known as: GARLAND"],
+          ["knows:kingsley", "'Hartley. Now there's a name I haven't written in years.' She went white"],
+        ],
+      },
+      {
+        claim: "At twenty to one Miss Kingsley was dancing, and Mr Quill was nowhere near a woman's voice.",
+        evidence: [
+          ["x_photo", "reads a quarter to one"],
+          ["knows:kingsley", "At a quarter to one you were dancing with the Staff Captain"],
+          ["knows:quill", "a woman's voice whispered"],
+        ],
+      },
+      {
+        claim: "Miss Ashdown's card-table alibi only begins a few minutes before the clocks went back.",
+        evidence: [
+          ["c_smoking", "1.56am', her first drink of the night"],
+          ["knows:quill", "a few minutes before the steward put the clock back at two"],
+          ["p_steward", "when the alarm went at twenty past one"],
+        ],
+      },
+      {
+        claim: "The body went along the crew alleyway in a laundry trolley, the way only crew would go.",
+        evidence: [
+          ["c_alley", "a laundry trolley"],
+          ["c_alley", "wedged open with a folded tombola card"],
+          ["p_programme", "Tombola in the Ballroom with your Social Hostess, Miss Ashdown"],
+          ["knows:pryce", "pushing a laundry trolley aft along the Boat Deck"],
+        ],
+      },
+    ],
+  },
+
   // What the leak guard looks for in AI-written lines (regular expression sources).
   guard: {
     guilt: "\\b(kill\\w*|murder\\w*|guilt\\w*|culprit|did it|struck|strike|hit (him|crane)|ashtray|trolley|scrubb?\\w*|carbolic|garland|hartley|moved (him|the body)|tombola card)\\b",
