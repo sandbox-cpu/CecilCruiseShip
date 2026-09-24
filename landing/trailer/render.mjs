@@ -34,11 +34,20 @@ console.log("Bundling…");
 const serveUrl = await bundle({ entryPoint: here("./src/index.jsx"), publicDir: here("../public") });
 // Which moving shots exist; a scene without one uses its photograph.
 const clips = Object.fromEntries(
-  Object.entries({ ship: "ship-push.mp4", cecil: "cecil-walk.mp4", sea: "sea-buoy.mp4", key: "wireless-key.mp4", deep: "hull-below.mp4" }).map(([id, file]) => [
-    id,
-    existsSync(out(`trailer-src/${file}`)),
-  ]),
+  Object.entries({
+    ship: "ship-push.mp4",
+    cecil: "cecil-walk.mp4",
+    sea: "sea-buoy.mp4",
+    key: "wireless-key.mp4",
+    deep: "hull-below.mp4",
+    lookup: "table-lookup.mp4",
+    smile: "table-smile.mp4",
+    squirm: "table-squirm.mp4",
+    toast: "table-toast.mp4",
+    point: "table-point.mp4",
+  }).map(([id, file]) => [id, existsSync(out(`trailer-src/${file}`))]),
 );
+console.log(`Moving shots: ${Object.entries(clips).map(([id, ok]) => `${id} ${ok ? "yes" : "(still)"}`).join(", ")}`);
 // Chrome's default software compositing is several times faster here than forcing a GL backend.
 const common = { serveUrl, browserExecutable, concurrency: 4, inputProps: { clips } };
 
