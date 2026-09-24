@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evidence pack · A Nightcap at Ravensmere</title>
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    @page { size: A4; margin: 14mm; }
+    body.pack { background: #d9d2c1; color: var(--paper-ink); font-family: var(--serif); }
+    .toolbar { position: sticky; top: 0; z-index: 2; display: flex; gap: 12px; align-items: center; justify-content: center; padding: 12px; background: var(--bg); }
+    .toolbar p { margin: 0; color: var(--muted); font-family: var(--sans); font-size: 14px; }
+    .page { background: var(--paper); width: min(210mm, 100%); min-height: 297mm; margin: 18px auto; padding: 16mm; box-shadow: 0 10px 30px rgba(0,0,0,0.25); page-break-after: always; break-after: page; position: relative; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    h1 { font-weight: 500; font-size: 40px; margin: 0 0 6px; }
+    h2 { font-weight: 500; font-size: 26px; margin: 0 0 12px; }
+    .kicker { font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.2em; font-size: 11px; color: #8a6b3a; font-weight: 700; }
+    .rule { border: 0; border-top: 1px solid #b9a884; margin: 16px 0; }
+    ol.steps { padding-left: 20px; line-height: 1.6; }
+    .cut { border: 2px dashed #9c8a66; border-radius: 6px; padding: 10px; position: relative; }
+    .cut::before { content: "✂ cut along the dashed line"; position: absolute; top: -10px; left: 12px; background: var(--paper); padding: 0 6px; font-family: var(--sans); font-size: 10px; color: #8a6b3a; }
+    .tents { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+    .tent { height: 62mm; display: grid; grid-template-rows: 1fr 1fr; }
+    .tent > div { display: grid; place-items: center; text-align: center; padding: 6px; }
+    .tent .top { transform: rotate(180deg); border-bottom: 1px dotted #9c8a66; }
+    .tent .name { font-size: 22px; }
+    .tent .bio { font-size: 12px; font-style: italic; color: #5d4d36; margin-top: 4px; }
+    .menu { text-align: center; border: 1px solid #b9a884; padding: 16mm 12mm; }
+    .menu .course { margin: 14px 0; font-size: 18px; }
+    .menu .note { font-style: italic; color: #5d4d36; }
+    .envelope-label { display: grid; place-items: center; height: 70mm; text-align: center; border: 3px double #6d5a3a; }
+    .envelope-label .num { font-size: 64px; line-height: 1; }
+    .photo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; margin-top: 10mm; }
+    .photo-side { height: 92mm; display: grid; place-items: center; text-align: center; }
+    .photo-back { background: #efe4c9; font-family: "Brush Script MT", "Segoe Script", cursive, var(--serif); font-size: 22px; padding: 12mm; line-height: 1.5; color: #2b3a67; }
+    .fold { font-family: var(--sans); font-size: 11px; color: #8a6b3a; text-align: center; margin-top: 4mm; }
+    svg { max-width: 100%; height: auto; }
+    @media print {
+      body.pack { background: none; }
+      .toolbar { display: none; }
+      .page { margin: 0; box-shadow: none; width: auto; min-height: auto; padding: 0; }
+    }
+  </style>
+</head>
+<body class="pack">
+  <div class="toolbar">
+    <p>The evidence pack is optional. Print it for a table-top feel; the game works fine without it.</p>
+    <button class="btn primary" onclick="window.print()">Print the pack</button>
+  </div>
+
+  <!-- 1. Cover and host notes -->
+  <section class="page">
+    <p class="kicker">An evening with Cecil · evidence pack</p>
+    <h1 id="title">A Nightcap at Ravensmere</h1>
+    <p><em id="tagline"></em></p>
+    <p id="setting"></p>
+    <hr class="rule">
+    <h2>Before your guests arrive</h2>
+    <ol class="steps">
+      <li>Print this pack. Cut out the place cards and fold them so the names stand up on the table.</li>
+      <li>Cut out the regimental photograph on page 5, <strong>fold it so the handwriting is on the back</strong>, and seal it in an envelope without reading the back. (No peeking. Cecil will know.) Stick the "Envelope Two" label on the front.</li>
+      <li>Put the menu and the house plan in the middle of the table. Don't open Envelope Two until Cecil asks.</li>
+      <li>On the laptop, run Cecil and open the shared screen. Tick "We've printed the evidence pack" in the lobby.</li>
+      <li>Everyone scans the QR code with their phone. Cecil does the rest.</li>
+    </ol>
+    <hr class="rule">
+    <h2>How the evening works</h2>
+    <p>Everyone plays a guest at Ravensmere Hall. Your phone is private: it holds your character, your secrets and anything Cecil whispers to you. The big screen is shared: Cecil narrates, lays out evidence and calls you back together. One of you is the murderer. Nobody else knows who, not even the host, because there isn't one. Cecil knows everything. Humans get to play.</p>
+    <p><strong>Who's who</strong> (roles are dealt at random when the game begins):</p>
+    <ul id="cast"></ul>
+  </section>
+
+  <!-- 2. Place cards -->
+  <section class="page">
+    <p class="kicker">Place cards</p>
+    <h2>Fold along the dotted line</h2>
+    <div class="tents" id="tents"></div>
+  </section>
+
+  <!-- 3. House plan -->
+  <section class="page">
+    <p class="kicker">For the middle of the table</p>
+    <h2>Ravensmere Hall, ground floor</h2>
+    <svg viewBox="0 0 700 480" role="img" aria-label="Plan of the ground floor of Ravensmere Hall">
+      <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#cdbb93" stroke-width="2"/></pattern></defs>
+      <rect x="10" y="10" width="680" height="460" fill="#f7f0de" stroke="#3b2f22" stroke-width="4"/>
+      <g stroke="#3b2f22" stroke-width="2.5" fill="none">
+        <rect x="10" y="10" width="230" height="190"/>
+        <rect x="240" y="10" width="200" height="190"/>
+        <rect x="440" y="10" width="250" height="190"/>
+        <rect x="10" y="260" width="230" height="210"/>
+        <rect x="240" y="260" width="200" height="210"/>
+        <rect x="440" y="260" width="250" height="210"/>
+      </g>
+      <rect x="10" y="200" width="680" height="60" fill="url(#hatch)" opacity="0.7"/>
+      <g fill="#3b2f22" font-family="Georgia, serif" text-anchor="middle">
+        <text x="125" y="100" font-size="22">The Study</text>
+        <text x="125" y="126" font-size="13" font-style="italic">where Sir Edmund died</text>
+        <text x="340" y="100" font-size="20">Miss Fenn's</text>
+        <text x="340" y="124" font-size="20">Office</text>
+        <text x="565" y="100" font-size="22">Dining Room</text>
+        <text x="350" y="236" font-size="16" letter-spacing="3">THE CORRIDOR</text>
+        <text x="125" y="360" font-size="22">Conservatory</text>
+        <text x="340" y="360" font-size="22">The Hall</text>
+        <text x="340" y="384" font-size="13" font-style="italic">stairs · front door</text>
+        <text x="565" y="360" font-size="22">Billiard Room</text>
+      </g>
+      <g fill="#8e2a2a">
+        <rect x="200" y="206" width="26" height="14" rx="2"/>
+        <text x="213" y="250" font-size="11" text-anchor="middle" font-family="Georgia, serif">port tray</text>
+      </g>
+    </svg>
+    <p><em>The port tray stood on the side table in the corridor, outside the study door, from 11.05pm until 11.20pm.</em></p>
+  </section>
+
+  <!-- 4. Menu -->
+  <section class="page">
+    <div class="menu">
+      <p class="kicker">Ravensmere Hall · Thursday</p>
+      <h1>Dinner</h1>
+      <p class="course">Brown Windsor soup</p>
+      <p class="course">Roast pheasant, bread sauce, game chips</p>
+      <p class="course">Treacle tart</p>
+      <p class="course">Stilton and oatcakes</p>
+      <hr class="rule">
+      <p class="course">Port</p>
+      <p class="note">For Sir Edmund, served in the study at eleven, as always.</p>
+    </div>
+  </section>
+
+  <!-- 5. Envelope Two -->
+  <section class="page">
+    <p class="kicker">Envelope Two · do not open until Cecil asks</p>
+    <div class="cut envelope-label">
+      <div><p class="kicker">Evidence</p><p class="num">Two</p><p><em>Not to be opened until Cecil asks.</em></p></div>
+    </div>
+    <div class="cut photo-pair">
+      <div class="photo-side">
+        <svg viewBox="0 0 320 220" role="img" aria-label="A faded regimental photograph">
+          <defs><filter id="sepia"><feColorMatrix type="matrix" values="0.39 0.77 0.19 0 0 0.35 0.69 0.17 0 0 0.27 0.53 0.13 0 0 0 0 0 1 0"/></filter></defs>
+          <rect width="320" height="220" fill="#c9b184"/>
+          <rect x="0" y="150" width="320" height="70" fill="#a58c5f"/>
+          <g fill="#4a3b27" opacity="0.85">
+            <g transform="translate(40 70)"><circle r="14"/><rect x="-20" y="12" width="40" height="70" rx="12"/></g>
+            <g transform="translate(95 66)"><circle r="14"/><rect x="-20" y="12" width="40" height="74" rx="12"/></g>
+            <g transform="translate(150 64)"><circle r="15"/><rect x="-21" y="13" width="42" height="76" rx="12"/></g>
+            <g transform="translate(205 67)"><circle r="14"/><rect x="-20" y="12" width="40" height="72" rx="12"/></g>
+            <g transform="translate(260 70)"><circle r="14"/><rect x="-20" y="12" width="40" height="70" rx="12"/></g>
+          </g>
+          <rect x="4" y="4" width="312" height="212" fill="none" stroke="#f6efdf" stroke-width="8"/>
+          <text x="160" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#2a2118">Normandy, 1944</text>
+        </svg>
+      </div>
+      <div class="photo-side photo-back" id="photo-back"></div>
+    </div>
+    <p class="fold">Fold down the middle so the handwriting is on the back of the photograph.</p>
+    <p id="photo-front" style="font-size:13px;color:#5d4d36"></p>
+  </section>
+
+  <script type="module">
+    import { esc } from "/shared.js";
+    const data = await (await fetch("/api/pack")).json();
+    document.getElementById("title").textContent = data.title;
+    document.getElementById("tagline").textContent = data.tagline;
+    document.getElementById("setting").textContent = data.setting;
+    document.getElementById("cast").innerHTML = data.characters
+      .map((c) => `<li><strong>${esc(c.name)}</strong>: ${esc(c.bio)}${c.core ? "" : " <em>(four-player games only)</em>"}</li>`)
+      .join("");
+    document.getElementById("tents").innerHTML = data.characters
+      .map((c) => `<div class="cut tent">
+          <div class="top"><div><div class="name">${esc(c.name)}</div><div class="bio">${esc(c.bio)}</div></div></div>
+          <div><div><div class="name">${esc(c.name)}</div><div class="bio">${esc(c.bio)}</div></div></div>
+        </div>`)
+      .join("");
+    document.getElementById("photo-back").textContent = data.envelope.back.replace(/^On the back, in fountain pen: /, "").replace(/^'|'$/g, "");
+    document.getElementById("photo-front").textContent = data.envelope.front;
+  </script>
+</body>
+</html>

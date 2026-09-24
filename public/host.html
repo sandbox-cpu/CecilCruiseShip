@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cecil · A Nightcap at Ravensmere</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%230e1411' stroke='%23c9a55b' stroke-width='3'/><text x='32' y='44' font-size='34' text-anchor='middle' fill='%23e3c67f' font-family='Georgia' font-style='italic'>C</text></svg>">
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/host.css">
+</head>
+<body class="host">
+  <div id="app">
+    <!-- Arrivals: QR code and seating -->
+    <section id="lobby" class="screen" hidden>
+      <div class="lobby-grid">
+        <div class="lobby-intro">
+          <div class="monogram big">C</div>
+          <p class="eyebrow">An evening with Cecil</p>
+          <h1 id="lobby-title">A Nightcap at Ravensmere</h1>
+          <p class="tagline" id="lobby-tagline"></p>
+          <p class="cecil-says" id="lobby-cecil">Good evening. I'm Cecil. I'll be looking after you tonight. Do scan the card, find a seat, and try not to touch anything.</p>
+          <div class="status-row" id="lobby-status"></div>
+        </div>
+        <div class="lobby-join card">
+          <img id="qr" alt="QR code to join the game" width="260" height="260">
+          <p class="join-label">Scan to join, or visit</p>
+          <p class="join-url" id="join-url"></p>
+          <p class="join-label">and enter the code</p>
+          <p class="room-code" id="room-code">····</p>
+        </div>
+        <div class="lobby-seats card">
+          <h2>At the table <span id="seat-count"></span></h2>
+          <ul id="seats" class="seat-list"></ul>
+          <p class="hint" id="seat-hint"></p>
+          <div class="lobby-actions">
+            <button class="btn" data-action="add-guest" id="add-guest">+ Seat an AI guest</button>
+            <label class="check"><input type="checkbox" id="physical"> We've printed the <a href="/pack" target="_blank" rel="noopener">evidence pack</a></label>
+            <button class="btn primary big" data-action="start" id="start">Begin the evening</button>
+            <p class="error" id="lobby-error" role="alert"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The game itself -->
+    <section id="stage" class="screen" hidden>
+      <header class="topbar">
+        <div class="brand"><span class="monogram small">C</span><span id="stage-title">A Nightcap at Ravensmere</span></div>
+        <div class="phase" id="phase-name"></div>
+        <div class="controls">
+          <span class="timer" id="timer"></span>
+          <button class="icon-btn" data-action="pause" id="pause-btn" title="Pause">Pause</button>
+          <button class="icon-btn" data-action="skip" title="Skip to the next part">Skip</button>
+          <button class="icon-btn" data-action="voice" id="voice-btn" title="Cecil's voice">Voice on</button>
+        </div>
+      </header>
+
+      <main class="stage-grid">
+        <div class="cecil-panel card">
+          <div class="speaker">
+            <div class="monogram" id="speaker-mark">C</div>
+            <div>
+              <p class="eyebrow" id="speaker-name">Cecil</p>
+              <p class="speaker-sub" id="speaker-sub">your host</p>
+            </div>
+          </div>
+          <blockquote class="line" id="line" aria-live="polite"></blockquote>
+          <div class="paused-banner" id="paused" hidden>Cecil has paused the evening.</div>
+          <h3 class="feed-title">Earlier this evening</h3>
+          <ol class="feed" id="feed"></ol>
+        </div>
+
+        <aside class="table card">
+          <h2>At the table</h2>
+          <ul class="lineup" id="lineup"></ul>
+          <p class="whisper-note">A glowing envelope means Cecil has just whispered to someone. Only they know what he said.</p>
+        </aside>
+
+        <section class="evidence">
+          <h2>Evidence</h2>
+          <div class="evidence-row" id="evidence"></div>
+        </section>
+      </main>
+    </section>
+
+    <!-- The reveal -->
+    <section id="reveal" class="screen" hidden>
+      <div class="reveal-wrap">
+        <p class="eyebrow">The reveal</p>
+        <h1 id="verdict"></h1>
+        <blockquote class="line reveal-line" id="reveal-line" aria-live="polite"></blockquote>
+        <div class="reveal-grid">
+          <div class="card pad">
+            <h2>The votes</h2>
+            <ul class="tally" id="tally"></ul>
+          </div>
+          <div class="card pad">
+            <h2>Scores</h2>
+            <ol class="scores" id="scores"></ol>
+          </div>
+          <div class="card pad wide">
+            <h2>Everyone's secrets</h2>
+            <ul class="lies" id="lies"></ul>
+          </div>
+          <div class="card pad wide">
+            <h2>Cecil's mischief tonight</h2>
+            <ul class="mischief" id="mischief"></ul>
+          </div>
+        </div>
+        <button class="btn primary big" data-action="reset">Play again</button>
+      </div>
+    </section>
+
+    <div class="sound-gate" id="sound-gate" hidden>
+      <button class="btn primary big" data-action="enable-sound">Tap to let Cecil speak</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/host.js"></script>
+</body>
+</html>

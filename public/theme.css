@@ -1,0 +1,135 @@
+/* Ravensmere at night: shared colours and type for the host screen, phones and pack. */
+
+:root {
+  --bg: #0e1411;
+  --bg-2: #141c18;
+  --panel: #19231e;
+  --panel-2: #202c26;
+  --line: #34443b;
+  --ink: #f1e9d6;
+  --muted: #a99f89;
+  --faint: #6f6a5c;
+  --brass: #c9a55b;
+  --brass-2: #e3c67f;
+  --blood: #a23a32;
+  --blood-2: #c9534a;
+  --moss: #5f8a63;
+  --paper: #f4ecd8;
+  --paper-ink: #2a2118;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+/* Panels set their own display (grid, flex), which would otherwise override the hidden attribute. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 20% -10%, rgba(201, 165, 91, 0.08), transparent 55%),
+    radial-gradient(ellipse at 110% 110%, rgba(162, 58, 50, 0.08), transparent 50%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+:focus-visible { outline: 3px solid var(--brass-2); outline-offset: 2px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--ink);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.btn:hover:not(:disabled) { border-color: var(--brass); }
+
+.btn.primary {
+  background: linear-gradient(180deg, var(--brass-2), var(--brass));
+  border-color: var(--brass);
+  color: #1d160c;
+}
+
+.btn.danger { border-color: var(--blood); color: #f6d4cf; background: rgba(162, 58, 50, 0.18); }
+
+.btn.ghost { background: transparent; }
+
+.eyebrow {
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  color: var(--brass);
+  font-weight: 700;
+}
+
+.pill {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  vertical-align: middle;
+}
+
+.pill.ai { border-color: rgba(201, 165, 91, 0.5); color: var(--brass-2); }
+.pill.off { border-color: rgba(162, 58, 50, 0.5); color: var(--blood-2); }
+
+.monogram {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--brass);
+  color: var(--brass-2);
+  font-size: 34px;
+  font-style: italic;
+  background: radial-gradient(circle at 35% 30%, rgba(227, 198, 127, 0.18), transparent 70%);
+  flex: none;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

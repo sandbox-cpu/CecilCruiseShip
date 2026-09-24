@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1411">
+  <title>Cecil · your private telephone</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%230e1411' stroke='%23c9a55b' stroke-width='3'/><text x='32' y='44' font-size='34' text-anchor='middle' fill='%23e3c67f' font-family='Georgia' font-style='italic'>C</text></svg>">
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/play.css">
+</head>
+<body class="phone">
+  <!-- Join -->
+  <section id="join" class="screen center" hidden>
+    <div class="monogram">C</div>
+    <p class="eyebrow">An evening with Cecil</p>
+    <h1>Take your seat</h1>
+    <form id="join-form" class="stack" autocomplete="off">
+      <label>Game code
+        <input id="join-code" name="code" maxlength="4" autocapitalize="characters" inputmode="text" required placeholder="ABCD">
+      </label>
+      <label>Your name
+        <input id="join-name" name="name" maxlength="24" required placeholder="e.g. Sam">
+      </label>
+      <button class="btn primary" type="submit">Join the table</button>
+      <p class="error" id="join-error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Waiting in the lobby -->
+  <section id="waiting" class="screen center" hidden>
+    <div class="monogram">C</div>
+    <h1 id="waiting-title">You're at the table</h1>
+    <p class="muted">Keep this screen private. When the evening begins, Cecil will tell you who you are.</p>
+    <ul class="mini-list" id="waiting-seats"></ul>
+    <button class="btn ghost" id="leave">Leave the table</button>
+  </section>
+
+  <!-- The game -->
+  <section id="game" class="screen" hidden>
+    <header class="phone-top">
+      <div>
+        <p class="eyebrow" id="phase-label"></p>
+        <h1 id="me"></h1>
+      </div>
+      <span class="timer" id="timer"></span>
+    </header>
+
+    <main class="tabs-body">
+      <!-- Dossier -->
+      <section class="tab" id="tab-dossier" hidden>
+        <div id="murderer-banner" class="banner blood" hidden>You are the murderer. Nobody else knows. Keep it that way.</div>
+        <div id="dossier"></div>
+        <button class="btn primary wide" id="ready-btn" hidden>I've read my dossier</button>
+        <p class="muted center-text" id="ready-note" hidden>Waiting for everyone else to finish reading…</p>
+      </section>
+
+      <!-- Whispers -->
+      <section class="tab" id="tab-whispers" hidden>
+        <p class="muted">Everything Cecil has told you, privately. Newest first.</p>
+        <ol class="whispers" id="whispers"></ol>
+      </section>
+
+      <!-- Clues -->
+      <section class="tab" id="tab-clues" hidden>
+        <p class="muted">What you've found, and what's on the table for everyone.</p>
+        <div id="clues"></div>
+        <h2 class="section-title">On the table for everyone</h2>
+        <div id="public-evidence"></div>
+      </section>
+
+      <!-- Actions -->
+      <section class="tab" id="tab-act" hidden>
+        <div id="mission"></div>
+        <div id="envelope"></div>
+
+        <article class="card action" id="search-card">
+          <h2>Search a room</h2>
+          <p class="muted" id="search-note"></p>
+          <div class="grid-buttons" id="rooms"></div>
+        </article>
+
+        <article class="card action" id="ask-card">
+          <h2>Ask Cecil</h2>
+          <p class="muted" id="ask-note"></p>
+          <div class="chips" id="ask-presets"></div>
+          <form class="inline-form" id="ask-form" hidden>
+            <input id="ask-input" maxlength="200" placeholder="Or ask in your own words…">
+            <button class="btn primary" type="submit">Ask</button>
+          </form>
+          <ol class="answers" id="ask-history"></ol>
+        </article>
+
+        <article class="card action" id="guest-card" hidden>
+          <h2>Question an AI guest</h2>
+          <p class="muted" id="guest-note"></p>
+          <div class="guest-pick" id="guest-pick"></div>
+          <div class="chips" id="guest-presets"></div>
+          <form class="inline-form" id="guest-form" hidden>
+            <input id="guest-input" maxlength="200" placeholder="Ask them anything…">
+            <button class="btn primary" type="submit">Ask</button>
+          </form>
+        </article>
+
+        <article class="card action" id="drawer-card">
+          <h2>Sir Edmund's desk drawer</h2>
+          <p class="muted" id="drawer-note"></p>
+          <form class="dial" id="drawer-form">
+            <input id="drawer-input" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="· · ·" aria-label="Three-digit combination">
+            <button class="btn primary" type="submit">Try the drawer</button>
+          </form>
+          <p class="error" id="drawer-error" role="alert"></p>
+        </article>
+      </section>
+
+      <!-- Accusation -->
+      <section class="tab" id="tab-accuse" hidden>
+        <h2 class="section-title">Who poisoned Sir Edmund?</h2>
+        <p class="muted" id="vote-note">Your vote is private. You can change it until the reveal.</p>
+        <div class="grid-buttons tall" id="candidates"></div>
+      </section>
+
+      <!-- Reveal -->
+      <section class="tab" id="tab-reveal" hidden>
+        <div id="reveal"></div>
+      </section>
+    </main>
+
+    <nav class="tabbar" id="tabbar">
+      <button data-tab="dossier">Dossier</button>
+      <button data-tab="whispers">Whispers <span class="badge" id="unread" hidden></span></button>
+      <button data-tab="clues">Clues <span class="count" id="clue-count"></span></button>
+      <button data-tab="act" id="act-tab">Act</button>
+      <button data-tab="accuse" id="accuse-tab" hidden>Accuse</button>
+      <button data-tab="reveal" id="result-tab" hidden>Result</button>
+    </nav>
+  </section>
+
+  <!-- A new private message from Cecil -->
+  <div class="whisper-overlay" id="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="overlay-title">
+    <div class="whisper-card">
+      <p class="eyebrow">Cecil, privately</p>
+      <h2 id="overlay-title"></h2>
+      <p id="overlay-text"></p>
+      <button class="btn primary wide" id="overlay-ok">Understood</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/play.js"></script>
+</body>
+</html>

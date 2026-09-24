@@ -1,0 +1,25 @@
+{
+  "name": "cecil-mystery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cecil: an AI-hosted, asymmetric murder mystery for 3-4 players. Laptop is the shared screen, phones are private.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test --test-reporter=spec \"test/*.test.js\"",
+    "test:browser": "node --test --test-reporter=spec \"test/browser/*.test.js\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "express": "^5.2.1",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "socket.io-client": "^4.8.3"
+  }
+}
