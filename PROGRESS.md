@@ -43,3 +43,10 @@ The telegram cut felt like a report of something already over. Re-cut around the
 - [x] New material (1.56 of the last 1.65 Higgsfield credits): three stills of friends round a dinner table, one take of four new Cecil lines
 - [x] `landing/trailer/src/telegram/` and `sound/telegram.mjs` rewritten; the game's shared screen composited onto the TV in the table shot
 - [x] Render, landing tests, README, push; still the page's default cut (the classic cut unchanged)
+
+## Fourth pass (brighter, punchier), and what's parked
+
+- [x] Gamma lift on the photographs (not the phones or type), no added grain, no heavy enlarging, better encoding
+- [x] Cold-open cards (four friends, four secrets, one murderer), the guilty phone on its own, punch-ins, a table beat before the vote; Cecil's "which one" kept on the darker wireless-room still (the user's call)
+- [x] Timeline is a run of beats with lengths (`landing/trailer/src/telegram/timing.js`), so beats can grow without re-timing the rest
+- [ ] Parked until Higgsfield is topped up (about 40 credits; the balance is 0.09): five moving table shots made with Kling from the table stills (`table-lookup`, `table-smile`, `table-squirm`, `table-toast`, `table-point`, 5 s each, locked-off camera so the TV overlay stays put) saved to `landing/public/media/trailer-src/`, which the trailer picks up automatically; and Cecil speaking the three whispers (one Seed Audio take, voice reference as before), which means lengthening the three whisper beats to fit
