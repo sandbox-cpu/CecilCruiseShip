@@ -48,6 +48,7 @@ h2 {
 .watching [data-action="pause"],
 .watching [data-action="skip"],
 .watching [data-action="reset"],
+.watching [data-action="end"],
 .watching [data-action="remove-seat"],
 .watching [data-action="takeover"] { display: none; }
 .room-code { font-size: clamp(44px, 4.5vw, 84px); letter-spacing: 0.25em; margin: 4px 0 0 0.25em; color: var(--brass-2); }

@@ -156,6 +156,21 @@ test("a full game over sockets: private views, reconnect, and the reveal", async
   await until(() => latest(players[0]).phase === "lobby", "phones back in the lobby");
 });
 
+test("the host can end the evening part-way and go back to the lobby", async () => {
+  const { host, players } = await hostWithPlayers(["Early", "Leaver"]);
+  assert.equal((await emit(host, "host:start")).ok, true);
+  await until(() => latest(host).phase === "prologue", "prologue");
+  await emit(host, "host:skip");
+  await until(() => latest(host).phase !== "prologue", "past the prologue");
+
+  assert.equal((await emit(host, "host:reset")).ok, true);
+  await until(() => latest(host).phase === "lobby" && latest(host).seats.length === 2, "lobby after ending");
+  await until(() => players.every((p) => latest(p).phase === "lobby"), "phones back in the lobby");
+  // And the same people can start again straight away.
+  assert.equal((await emit(host, "host:start")).ok, true);
+  await until(() => latest(host).phase === "prologue", "a fresh prologue");
+});
+
 test("host controls need the host's screen", async () => {
   const { code, hostToken, players } = await hostWithPlayers(["Solo"]);
   assert.match((await emit(players[0], "host:start")).error, /isn't hosting/);

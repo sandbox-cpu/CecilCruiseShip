@@ -49,7 +49,7 @@ The first time, your computer may ask whether Node can accept connections on you
 **Demo tips:**
 
 - `GAME_SPEED=2 npm start` runs everything at double speed.
-- The top bar has **Pause** and **Skip** buttons.
+- The top bar has **Pause**, **Skip** and **End evening** buttons. **End evening** stops the mystery part-way and goes back to the lobby with everyone still seated (it asks first). After the reveal, **Play again** does the same.
 - To demo alone, open the join page in two different browsers, or a normal window plus a private one. Each one counts as a separate player.
 
 ### Playing over the internet
@@ -69,7 +69,14 @@ Keep the link to the people you're playing with: anyone with it and the four-let
 
 ### Cecil's brain and voice (optional)
 
-Your existing `.env` works unchanged for both cases. Copy `.env.example` to `.env` and add whichever keys you have:
+Your existing `.env` works unchanged for both cases. The keys go in a file called `.env` in the game's main folder, the one with `package.json` in it (not `landing`). To make one on Windows, open PowerShell in that folder and run:
+
+```powershell
+copy .env.example .env
+notepad .env
+```
+
+Put your key after the `=` on its line (for example `ELEVENLABS_API_KEY=` followed by the key, no spaces or quotes), save, and restart the game. The startup message names the settings file it read and says `Cecil's voice: ElevenLabs` when the key was found. If Notepad saved it as `.env.txt`, that works too.
 
 | Setting | What it does |
 |---|---|

@@ -9,10 +9,12 @@ import { DEFAULT_CASE, SCENARIOS, scenarioFor } from "./scenario/index.js";
 import { createVoice } from "./voice.js";
 
 // Load settings from a .env file next to package.json, if there is one.
-// Variables already set in the environment win.
+// Variables already set in the environment win. Windows Notepad likes to save
+// it as .env.txt, so that name works too. Returns the file used, or null.
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function loadEnvFile() {
-  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", ".env");
-  if (!fs.existsSync(file)) return;
+  const file = [".env", ".env.txt"].map((name) => path.join(root, name)).find((f) => fs.existsSync(f));
+  if (!file) return null;
   for (const line of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
     const match = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/i);
     if (!match || line.trim().startsWith("#")) continue;
@@ -20,9 +22,10 @@ function loadEnvFile() {
     const value = quoted ? quoted[2] : match[2].replace(/\s+#.*$/, "");
     if (!(match[1] in process.env)) process.env[match[1]] = value;
   }
+  return file;
 }
 
-loadEnvFile();
+const envFile = loadEnvFile();
 
 const port = Number(process.env.PORT) || 3000;
 const host = process.env.HOST || "0.0.0.0";
@@ -56,5 +59,6 @@ server.listen(port, host, () => {
   console.log(`  Cecil's brain:  ${ai ? `Claude (${ai.model})` : "scripted (set ANTHROPIC_API_KEY for live AI)"}`);
   console.log(`  Cecil's voice:  ${voice ? `ElevenLabs (voice ${voice.voiceId})` : "browser speech (set ELEVENLABS_API_KEY for ElevenLabs)"}`);
   if (speed !== 1) console.log(`  Game speed:     ${speed}x`);
+  console.log(`  Settings file:  ${envFile || `none yet. For keys, copy .env.example to .env in ${root}`}`);
   console.log("");
 });

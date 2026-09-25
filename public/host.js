@@ -417,6 +417,11 @@ document.addEventListener("click", async (event) => {
     pause: () => call(socket, state.timer.paused ? "host:resume" : "host:pause"),
     skip: () => (confirm("Skip to the next part of the evening?") ? call(socket, "host:skip") : { ok: true }),
     reset: () => call(socket, "host:reset"),
+    // Mid-game: the same as Play again, after a check, since the evening is lost.
+    end: () =>
+      confirm("End this mystery now and go back to the lobby? Everyone stays seated, but tonight's progress is lost.")
+        ? call(socket, "host:reset")
+        : { ok: true },
     takeover: () => call(socket, "host:takeover", { seatId }),
     voice: () => {
       soundOn = !soundOn;
